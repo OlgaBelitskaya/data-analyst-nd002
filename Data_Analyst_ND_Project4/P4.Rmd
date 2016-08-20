@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ##### Let's start the description of the project with definition of working tools: the directory for storing generated files, the list of downloaded packages and the collection of useful links.
 
 ## 1.1 Setup Working Directory
-'/Users/olgabelitskaya/version-control/reflections-ud651'
+'/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4'
 
 ```{r echo=FALSE, Working_Directory}
 setwd('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4')
@@ -47,7 +47,7 @@ setwd('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4')
 
 List of the libraries: 
 devtools, knitr, markdown, ggplot2, ggthemes, RColorBrewer, gridExtra, scales,
-reshape2, plyr, GGally, dplyr, tidyr, xlsx, lubridate.
+reshape2, plyr, GGally, dplyr, tidyr, xlsx, lubridate, plotly, etc.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Libraries_1}
 library(devtools)
@@ -89,14 +89,14 @@ http://www.cbr.ru/Eng/hd_base/
 
 ##### Using suitable fuctions (read.xlsx, data.frame) I had read the file as a dataframe. It was called "centrobank".
 
-```{r echo=FALSE, Data_1}
+```{r echo=FALSE, comment='', Data_1}
 centrobank <- data.frame(read.xlsx("c_bank.xlsx", sheetName="Data", header=TRUE))
 head(centrobank)
 ```
 
 ##### First, there were no values "NA" in this dataframe, it was specially checked.
 
-```{r echo=FALSE, Data_2}
+```{r echo=FALSE, comment='', Data_2}
 row.with.na <- apply(centrobank, 1, function(x){any(is.na(x))})
 s <- sum(row.with.na)
 cat('sum(row.with.na) = ', s)
@@ -104,13 +104,13 @@ cat('sum(row.with.na) = ', s)
 
 ##### Second, let us have a look on dataframe components (variables and their types, values, etc.).
 
-```{r echo=FALSE, Data_3}
+```{r echo=FALSE, comment='', Data_3}
 str(centrobank)
 ```
 
 ##### Third, we should notice that variables that indicating exchange rates are measured in rubles, the prices of precious metals are denoted in rubles per gram, foreign exchange reserves and monetary gold reserves in RF - in millions of US dollars for every month.
 
-```{r echo=FALSE, Data_4}
+```{r echo=FALSE, comment='', Data_4}
 summary(centrobank)
 ```
 ##### Finally, as we could see some variables (foreign_exchange_reserves, monetary_gold) have the wrong type. It means the investigation proceeds to the next step.
@@ -119,7 +119,7 @@ summary(centrobank)
 
 ##### With some special functions I added the right category (numerical) for foreign_exchange_reserves and monetary_gold.
 
-```{r echo=FALSE, Data_5}
+```{r echo=FALSE, comment='', Data_5}
 centrobank$temp1 <- gsub(" ","", centrobank$foreign_exchange_reserves)
 centrobank$foreign_exchange_reserves <- as.numeric(centrobank$temp1)
 
@@ -130,14 +130,14 @@ summary(centrobank$foreign_exchange_reserves)
 summary(centrobank$monetary_gold)
 ```
 
-```{r echo=FALSE, Data_6}
+```{r echo=FALSE, comment='', Data_6}
 drops <- c("temp1","temp2")
 centrobank <- centrobank[ , !(names(centrobank) %in% drops)]
 ```
 
 ##### For the next steps it would be useful to have variables with separated date indicators (days, months and years), so I had added these variables.
 
-```{r echo=FALSE, Data_7}
+```{r echo=FALSE, comment='', Data_7}
 centrobank$day= as.numeric(format(centrobank$date, "%d"))
 centrobank$month = format(centrobank$date, "%B") 
 centrobank$year = as.numeric(format(centrobank$date, "%Y"))
@@ -187,7 +187,7 @@ p4 <- ggplot(aes(x = palladium), data = centrobank) +
 ```{r fig.width=14, fig.height=8, echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots_5}
 g1 <- grid.arrange(p1, p2, p3, p4, ncol = 2)
 
-ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure-html/Univariate_Plots_5-1.png', g1, width = 18, height = 24) 
+ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure_html/Univariate_Plots_5_1.png', g1, width = 18, height = 24) 
 ```
 
 ##### 3.1.2 Plots for exchange rates (BRL 986, JPY 392, CNY 156, INR 356).
@@ -213,7 +213,7 @@ p8 <- ggplot(centrobank) + geom_point(aes(x = x, y = INR_356, color = x), size =
 ```{r fig.width=14, fig.height=8, echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots_10}
 g2 <- grid.arrange(p5, p6, p7, p8, ncol = 2)
 
-ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure-html/Univariate_Plots_10-1.png', g2, width = 18, height = 24) 
+ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure_html/Univariate_Plots_10_1.png', g2, width = 18, height = 24) 
 ```
 
 ##### 3.1.3 Plots for foreign exchange and monetary gold reserves.
@@ -229,7 +229,7 @@ p10 <- ggplot(centrobank, aes (x=x, y=monetary_gold, color = monetary_gold)) + g
 ```{r fig.width=14, fig.height=8, echo=FALSE, message=FALSE, warning=FALSE, Univariate_Plots_13}
 g3 <- grid.arrange(p9, p10, ncol = 1)
 
-ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure-html/Univariate_Plots_13-1.png', g3, width = 12, height = 24) 
+ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure_html/Univariate_Plots_13_1.png', g3, width = 12, height = 24) 
 ```
 
 ## 3.2. Univariate Analysis
@@ -258,7 +258,7 @@ corr_centrobank <-centrobank[, c(2,3,4,7,10,11,14,15,16,17,18,19,20)]
 chart.Correlation(corr_centrobank, histogram=TRUE, pch=19)
 ```
 
-##### The tables shows a strong correlation between the number of variables, we will examine in detail only some of them.
+##### The table shows a strong correlation between the number of variables, we will examine in detail only some of them.
 
 ##### 4.1.2 Plots for prices of precious metals and the dual currency basket.
 
@@ -281,7 +281,7 @@ p14 <- ggplot(centrobank, aes (x=dual_currency_basket, y=palladium, color = pall
 ```{r fig.width=14, fig.height=8, echo=FALSE, message=FALSE, warning=FALSE, Bivariate_Plots_7}
 g4 <- grid.arrange(p11, p12, p13, p14, ncol = 2)
 
-ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure-html/Bivariate_Plots_7-1.png', g4, width = 18, height = 24) 
+ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure_html/Bivariate_Plots_7_1.png', g4, width = 18, height = 24) 
 ```
 
 ##### 4.1.3 Plots for Asian exchange rates and the dual currency basket.
@@ -313,15 +313,15 @@ p20 <- ggplot(centrobank, aes (x=JPY_392, y=INR_356, color = INR_356)) + geom_li
 ```{r fig.width=14, fig.height=12, echo=FALSE, message=FALSE, warning=FALSE, Bivariate_Plots_14}
 g5 <- grid.arrange(p15, p16, p17, p18, p19, p20, ncol = 3)
 
-ggsave('/Users/olgabelitskaya//projects/nd002/Data_Analyst_ND_Project4/figure-html/Bivariate_Plots_14-1.png', g5, width = 18, height = 24) 
+ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure_html/Bivariate_Plots_14_1.png', g5, width = 18, height = 24) 
 ```
 
 ##### 4.1.4 Plots for foreign exchange reserves and monetary gold reserves.
 
-```{r fig.width=8, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, Bivariate_Plots_15}
+```{r echo=FALSE, message=FALSE, warning=FALSE, Bivariate_Plots_15}
 p21 <- ggplot(centrobank, aes (x=foreign_exchange_reserves, y=monetary_gold, color = monetary_gold)) + geom_jitter(shape = 13, size = 4) + geom_smooth(color = '#00FF99') + scale_colour_gradientn(colours=terrain.colors(10)) + theme_bw()
 p21
-ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure-html/Bivariate_Plots_15-1.png', p21, width = 12, height = 8)
+ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure_html/Bivariate_Plots_15_1.png', p21, width = 12, height = 8)
 ```
 
 ## 4.2 Bivariate Analysis
@@ -358,10 +358,8 @@ with(centrobank, cor.test(foreign_exchange_reserves, monetary_gold))
 
 ## 5.1 Multivariate Plots
 
-##### 5.1.1 Plots for prices of precious metals and exchange rates.
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots_1}
-p22<- ggplot(data = centrobank, aes(x = date)) + 
+p22 <- ggplot(data = centrobank, aes(x = date)) + 
   geom_point(aes(y=centrobank$gold), color = 'goldenrod1', shape=1, alpha=0.7, size = 5) + 
   geom_smooth(aes(y=centrobank$gold), color = 'gold') + 
   geom_text(data=centrobank, mapping=aes(y=centrobank$gold), label='G',size=4, color ='orange') +
@@ -399,11 +397,11 @@ y5 = 100*centrobank[1080,14]
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots_3}
 p23 <- ggplot(data = centrobank, aes(x = date)) + 
-  geom_point(aes(y=100*centrobank$JPY_392), color = 'darkred', shape=10, alpha=0.7, size = 4) + 
-  geom_point(aes(y=centrobank$USD_840, label=note2), color = 'darkblue', shape=11, alpha=0.7, size = 4) + 
-  geom_point(aes(y=centrobank$EUR_978), color = 'darkgreen', shape=12, alpha=0.7, size = 4) + 
-  geom_point(aes(y=10*centrobank$CNY_156), color = 'purple3', shape=13, alpha=0.7, size = 4) + 
-  geom_point(aes(y=100*centrobank$INR_356), color = 'orange', shape=14, alpha=0.7, size = 4) + 
+  geom_point(aes(y=100*centrobank$JPY_392), color = 'darkred', shape=10, alpha=0.7, size = 2) + 
+  geom_point(aes(y=centrobank$USD_840, label=note2), color = 'darkblue', shape=11, alpha=0.7, size = 2) + 
+  geom_point(aes(y=centrobank$EUR_978), color = 'darkgreen', shape=12, alpha=0.7, size = 2) + 
+  geom_point(aes(y=10*centrobank$CNY_156), color = 'purple3', shape=13, alpha=0.7, size = 2) + 
+  geom_point(aes(y=100*centrobank$INR_356), color = 'orange', shape=14, alpha=0.7, size = 2) + 
   geom_smooth(aes(y=100*centrobank$JPY_392), color = 'red') +  
   geom_smooth(aes(y=centrobank$USD_840), color = 'blue') +  
   geom_smooth(aes(y=centrobank$EUR_978), color = 'green') +  
@@ -421,21 +419,20 @@ p23 <- ggplot(data = centrobank, aes(x = date)) +
 
 ```{r fig.width=14, fig.height=20, echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots_4}
 g11 <- grid.arrange(p22, p23, ncol=1)
-ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure-html/Multivariate_Plots_4-1.png', g11, width = 18, height = 24)
+ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure_html/Multivariate_Plots_4_1.png', g11, width = 18, height = 24)
 ```
 
-##### 5.1.2 A plot for exchange rates (USD, EUR) and gold price in 2015-2016.
+##### 5.1.2 A plot for exchange rates (USD, EUR) and gold price
 
 ```{r fig.width=8, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots_5}
-centrobank2016 = subset(centrobank, year == 2015 | year == 2016)
-pl1 <- plot_ly(centrobank2016, x=EUR_978, y=USD_840, z=gold, color = gold, text = paste(date), colors = 'Spectral', type="scatter3d", mode="markers", marker = list(size = 8, symbol = "circle-open"))
+pl1 <- plot_ly(centrobank, x=EUR_978, y=USD_840, z=gold, color = gold, text = paste(date), colors = 'Spectral', type="scatter3d", mode="markers", marker = list(size = 8, symbol = "circle-open"))
 pl1
 ```
 
-##### 5.1.3 A plot for prices of precious metals (gold, silver) and dual currency basket in 2015-2016.
+##### 5.1.3 A plot for prices of precious metals (gold, silver) and the dual currency basket.
 
 ```{r fig.width=8, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, Multivariate_Plots_6}
-pl2 <- plot_ly(centrobank2016, x=gold, y=silver, z=dual_currency_basket, color = dual_currency_basket, text = paste(date), colors = 'Spectral', type="scatter3d", mode="markers", marker = list(size = 8, symbol = "diamond-open"))
+pl2 <- plot_ly(centrobank, x=gold, y=silver, z=dual_currency_basket, color = dual_currency_basket, text = paste(date), colors = 'Spectral', type="scatter3d", mode="markers", marker = list(size = 8, symbol = "diamond-open"))
 pl2
 ```
 
@@ -445,7 +442,7 @@ pl2
 
 ##### These conclusions are confirmed by three-dimensional graphics. Adding the price of silver as a variable had led to the considerable spread of the data.
 
-## 5.3 OPTIONAL: Building the Linear Model
+## 5.3 OPTIONAL: Building the Linear Model.
 
 ##### We can construct a model of the dependence the price of gold on the price of the currency basket and the prices of other precious metals.
 
@@ -463,7 +460,7 @@ mtable(m1, m2, m3, m4)
 
 ### 6.1.1 Plot One
 
-```{r echo=FALSE, Plot_One}
+```{r fig.width=7, fig.height=7, echo=FALSE, message=FALSE, warning=FALSE,echo=FALSE, Plot_One}
 mcorr_centrobank <- cor(corr_centrobank)
 corrplot.mixed(mcorr_centrobank, lower="number", upper="pie", order ="AOE", tl.col="darkblue", tl.cex=0.5)
 ```
@@ -473,23 +470,22 @@ corrplot.mixed(mcorr_centrobank, lower="number", upper="pie", order ="AOE", tl.c
 ##### The first final plot is a graphical table of correlation between variables. It emphasizes once again the strong relationship between almost all indicators.
 
 ### 6.2.1 Plot Two
-
-```{r echo=FALSE, Plot_Two}
-
+```{r fig.width=11, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE, Plot_Two}
+p24 <- ggplot(centrobank, aes(x=dual_currency_basket, y = gold, color = year)) + geom_point(shape=10, alpha=0.5, size = 2) + facet_wrap( ~ year, ncol=3, scale = 'free') + geom_smooth() + scale_colour_gradientn(colours=rainbow(5)) + ggtitle('Gold prices to dual currency basket in 2012-2016, rubles') + theme_hc()
+ggplotly(p24)
+ggsave('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure_html/Plot_Two_1.png', p24, width = 18, height = 12)
 ```
 
 ### 6.2.2 Description Two
 
+##### The second graph shows the danger of some statistical predictions and conclusions. According the researches, the gold price is quite strongly dependent on the price of the dual currency basket, currency exchange rates and the prices of other precious metals, but in 2013 this indicator demonstrates a diametrically opposite behavior. This database does not allow to identify the factors that had such an influence. So, more deep researches are needed.
 
 ### 6.3.1 Plot Three
-
-```{r echo=FALSE, Plot_Three}
-
+```{r fig.width=11, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE, Plot_Three}
+#
 ```
 
 ### 6.3.2 Description Three
-
-
 
 # 7 Reflection
 
@@ -497,10 +493,13 @@ corrplot.mixed(mcorr_centrobank, lower="number", upper="pie", order ="AOE", tl.c
 
 ##### In general it's a very difficult sphere for prediction because of many external factors, so for more correct researching I think it needs to have about 5000-10000 rows of data and some additional factors (oil prices, for example).
 
-##### For this project, I have set for myself the task of training rather than a researching. I have been studying and applying the programming language R for the first time so I had chosen the lightest model for investigating, where economic relations between the variables are obvious.
+##### Working over this project, I have set for myself the task of training rather than a researching. I have been studying and applying the programming language R for the first time so I had chosen the lightest model for investigating, where economic relations between the variables are obvious.
 
 ##### For these goals different plotting techniques had been used. R has a very wide range of instruments, I hope I was able to learn at least some of them.
 
-##### In addition, I have been studying to apply this language in the R-Studio and the Jupyter Notebook. In some cases, I was unable to apply the same methodology. For example, I would like to know how to use the plotly package in the Jupyter Notebook, but it shows errors during installation. 
+##### In addition, I have been studying to apply this language in the R-Studio and the Jupyter Notebook. In some cases, I was unable to apply the same methodology. For example, I would like to know how to use the plotly package in the Jupyter Notebook in the Anaconda environments, but it shows errors during installation. Maybe I could improve it a little bit later.
 
 ##### The broad field of research is ahead with the addition of more and more wide range of methods and indicators.
+
+
+
