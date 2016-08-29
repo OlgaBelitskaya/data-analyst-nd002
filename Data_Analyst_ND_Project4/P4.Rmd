@@ -92,7 +92,7 @@ http://www.cbr.ru/Eng/hd_base/
 ##### Using suitable functions (read.xlsx, data.frame) I had read the file as a dataframe. It was called "centrobank".
 
 ```{r echo=FALSE, comment='', Data_1}
-centrobank <- data.frame(read.xlsx("c_bank.xlsx", sheetName="Data", header=TRUE))
+centrobank <- data.frame(read.xlsx("c_bank.xlsx",sheetName="Data",header=TRUE))
 head(centrobank)
 ```
 
