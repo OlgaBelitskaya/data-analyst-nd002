@@ -1,4 +1,5 @@
-Project Notes
+##### Project Notes ######
+##########################
 
 Useful links:
 
@@ -6,15 +7,29 @@ http://datamaps.github.io/
 
 http://www.bogotobogo.com/python/IPython/iPython_Jupyter_Notebook_with_Embedded_D3.php
 
-http://jeffpaine.github.io/geojson-topojson/
+################################################################################
 
-http://www.w3schools.com/colors/colors_names.asp
-Source collections:
+Code collections:
+
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
 
 http://code.highcharts.com/mapdata/
 
+http://techslides.com/over-2000-d3-js-examples-and-demos
+
 http://www.w3schools.com/colors/colors_names.asp
+
+http://www.w3schools.com/css/css_background.asp
 
 https://github.com/d3/d3-3.x-api-reference/blob/master/Ordinal-Scales.mdhttp://
 
-www.infoplease.com/ipa/A0762524.html //data
+http://jeffpaine.github.io/geojson-topojson/
+
+http://papaparse.com/
+
+################################################################################
+
+Data:
+
+www.infoplease.com/ipa/A0762524.html
+

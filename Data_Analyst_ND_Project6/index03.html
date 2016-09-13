@@ -7,8 +7,32 @@
   <script src="http://d3js.org/topojson.v1.min.js"></script>
   <script src="http://datamaps.github.io/scripts/datamaps.world.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/numeral.js/1.4.5/numeral.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.71/jquery.csv-0.71.min.js"></script>
 
-  <div id="container" style="position: fixed; top: 50; left: 50; width: 1100px; height: 700px; border: 1px solid #73AD21;"></div>
+
+  <div id="container" style="position: fixed; top: 50; left: 50; width: 1400px; height: 800px; border: 1px solid #73AD21;"></div>
+
+  <pre id="csv" style="display:none">Rank,City,Country,2014,1990,Growth,Country_code,Latitude,Longitude
+1,Tokyo,Japan,37833000,32530000,16.30,JPN,35.6895,139.6917
+2,Delhi,India,24953000,9726000,156.56,IND,28.7041,77.1025
+3,Shanghai,China,22991000,7823000,193.89,CHN,31.2304,121.4737
+4,Mexico City,Mexico,20843000,15642000,33.25,MEX,23.6345,-102.5528
+5,São Paulo,Brazil,20831000,14776000,40.98,BRA,-23.5505,-46.6333
+6,Mumbai,India,20741000,12436000,66.78,IND,19.076,72.8777
+7,Osaka,Japan,20123000,18389000,9.43,JPN,34.6937,135.5022
+8,Beijing,China,19520000,6788000,187.57,CHN,39.9042,116.4074
+9,New York/Newark,United States,18591000,16086000,15.57,USA,40.7128,-74.0059
+10,Cairo,Egypt,18419000,9892000,86.20,EGY,30.0444,31.2357
+11,Dhaka,Bangladesh,16982000,6621000,156.49,BGD,23.8103,90.4125
+12,Karachi,Pakistan,16126000,7147000,125.63,PAK,24.8615,67.0099
+13,Buenos Aires,Argentina,15024000,10513000,42.91,ARG,-34.6037,-58.3816
+14,Calcutta,India,14766000,10890000,35.59,IND,22.5726,88.3639
+15,Istanbul,Turkey,13954000,6522000,113.95,TUR,41.0082,28.9784
+16,Chongqing,China,12916000,4011000,222.01,CHN,29.5630,106.5515
+17,Rio de Janeiro,Brazil,12825000,9697000,32.26,BRA,-22.9068,-43.1729
+18,Manila,Philippines,12764000,7973000,60.09,PHL,14.5995,120.9842
+19,Lagos,Nigeria,12614000,4764000,164.78,NGA,6.5244,3.3792
+20,Los Angeles/Long Beach/Santa Ana,United States,12308000,10883000,13.09,USA,34.0522,-118.2437</pre>
 
   <style>
 
@@ -33,26 +57,35 @@
 
 <body>
   <script type="text/javascript">
+    var data = 
 
-    var colors = d3.scale.category10();
+    var colors = d3.scale.category20c();
+
+    var bubble_colors = [
+      'red', 'deeppink', 'darkorchid', 'royalblue',
+      'limegreen', 'crimson', 'mediumturquoise', 'tomato',
+      'brown', 'deepskyblue', 'gold', 'chocolate',
+      'purple', 'aqua', 'coral', 'chartreuse',
+      'fuchsia', 'yellogreen'    
+    ];
  
     var map = new Datamap({
       element: document.getElementById('container'),
       fills: {
         defaultFill: 'steelblue',
-        USA: colors(Math.random() * 10),
-        JPN: colors(Math.random() * 20),
-        BRA: colors(Math.random() * 30),
-        CHN: colors(Math.random() * 40),
-        IND: colors(Math.random() * 50),
-        PHL: colors(Math.random() * 60),
-        NGA: colors(Math.random() * 70),
-        TUR: colors(Math.random() * 80),
-        ARG: colors(Math.random() * 90),
-        EGY: colors(Math.random() * 100),
-        BGD: colors(Math.random() * 110),
-        PAK: colors(Math.random() * 120),
-        MEX: colors(Math.random() * 130)
+        USA: bubble_colors[0],
+        JPN: bubble_colors[1],
+        BRA: bubble_colors[2],
+        CHN: bubble_colors[3],
+        IND: bubble_colors[4],
+        PHL: bubble_colors[5],
+        NGA: bubble_colors[6],
+        TUR: bubble_colors[7],
+        ARG: bubble_colors[8],
+        EGY: bubble_colors[9],
+        BGD: bubble_colors[10],
+        PAK: bubble_colors[11],
+        MEX: bubble_colors[12]
       },
       geographyConfig: {
         borderWidth: 0.5,
@@ -60,36 +93,15 @@
         borderColor: 'silver'
       },
        bubblesConfig: {
-        borderWidth: 1,
+        borderWidth: 0.5,
         fillOpacity: 0.7,
       }
   
     });
 
-    map.bubbles([
-      {name: 'Tokyo', latitude: 35.6895, longitude: 139.6917, radius: 16.30/4, fillKey: 'JPN'},
-      {name: 'Delhi', latitude: 28.7041, longitude: 77.1025, radius: 156.56/4, fillKey: 'IND'},
-      {name: 'Shanghai', latitude: 31.2304, longitude: 121.4737, radius: 193.89/4, fillKey: 'CHN'},
-      {name: 'Mexico City', latitude: 23.6345, longitude: -102.5528, radius: 33.25/4, fillKey: 'MEX'},
-      {name: 'São Paulo', latitude: -23.5505, longitude: -46.6333, radius: 40.98/4, fillKey: 'BRA'},
-      {name: 'Mumbai', latitude: 19.076, longitude: 72.8777, radius: 66.78/4, fillKey: 'IND'},
-      {name: 'Osaka', latitude: 34.6937, longitude: 135.5022, radius: 9.43/4, fillKey: 'JPN'}, 
-      {name: 'Beijing', latitude: 39.9042, longitude: 116.4074, radius: 187.57/4, fillKey: 'CHN'},
-      {name: 'New York/Newark', latitude: 40.7128, longitude: -74.0059, radius: 15.57/4, fillKey: 'USA'},
-      {name: 'Cairo', latitude: 30.0444, longitude: 31.2357, radius: 86.20/4, fillKey: 'EGY'},
-      {name: 'Dhaka', latitude: 23.8103, longitude: 90.4125, radius: 156.49/4, fillKey: 'BGD'},
-      {name: 'Karachi', latitude: 24.8615, longitude: 67.0099, radius: 125.63/4, fillKey: 'PAK'},
-      {name: 'Buenos Aires', latitude: -34.6037, longitude: -58.3816, radius: 42.91/4, fillKey: 'ARG'},
-      {name: 'Calcutta', latitude: 22.5726, longitude: 88.3639, radius: 35.59/4, fillKey: 'IND'},
-      {name: 'Istanbul', latitude: 41.0082, longitude: 28.9784, radius: 113.95/4, fillKey: 'TUR'},
-      {name: 'Chongqing', latitude: 29.5630, longitude: 106.5515, radius: 222.01/4, fillKey: 'CHN'},
-      {name: 'Rio de Janeiro', latitude: -22.9068, longitude: -43.1729, radius: 32.26/4, fillKey: 'BRA'},
-      {name: 'Manila', latitude: 14.5995, longitude: 120.9842, radius: 60.09/4, fillKey: 'PHL'},
-      {name: 'Lagos', latitude: 6.5244, longitude: 3.3792, radius: 164.78/4, fillKey: 'NGA'},
-      {name: 'Los Angeles/Long Beach/Santa Ana', latitude: 34.0522, longitude: -118.2437, radius: 13.09/4, fillKey: 'USA'}
-      ], {
+    map.bubbles([data: { csv: document.getElementById('csv').innerHTML } ], {
       popupTemplate: function(geo, data) { 
-        return "<div class='hoverinfo'>" + data.name + " - " + numeral(data.radius*4).format('0.00') + "%";
+        return "<div class='hoverinfo'>" + data.City + " - " + numeral(data.Growth).format('0.00') + "%";
       }
     });
     

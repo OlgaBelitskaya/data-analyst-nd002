@@ -8,7 +8,7 @@
   <script src="http://datamaps.github.io/scripts/datamaps.world.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/numeral.js/1.4.5/numeral.min.js"></script>
 
-  <div id="container" style="position: fixed; top: 50; left: 50; width: 1400px; height: 800px; border: 1px solid #73AD21;"></div>
+  <div id="container" style="position: fixed; top: 50; left: 50; width: 1100px; height: 700px; border: 1px solid #73AD21;"></div>
 
   <style>
 
@@ -34,33 +34,25 @@
 <body>
   <script type="text/javascript">
 
-    var colors = d3.scale.category20c();
-
-    var bubble_colors = [
-      'red', 'deeppink', 'darkorchid', 'royalblue',
-      'limegreen', 'crimson', 'mediumturquoise', 'tomato',
-      'brown', 'deepskyblue', 'gold', 'chocolate',
-      'purple', 'aqua', 'coral', 'chartreuse',
-      'fuchsia', 'yellogreen'    
-    ];
+    var colors = d3.scale.category10();
  
     var map = new Datamap({
       element: document.getElementById('container'),
       fills: {
         defaultFill: 'steelblue',
-        USA: bubble_colors[0],
-        JPN: bubble_colors[1],
-        BRA: bubble_colors[2],
-        CHN: bubble_colors[3],
-        IND: bubble_colors[4],
-        PHL: bubble_colors[5],
-        NGA: bubble_colors[6],
-        TUR: bubble_colors[7],
-        ARG: bubble_colors[8],
-        EGY: bubble_colors[9],
-        BGD: bubble_colors[10],
-        PAK: bubble_colors[11],
-        MEX: bubble_colors[12]
+        USA: colors(Math.random() * 10),
+        JPN: colors(Math.random() * 20),
+        BRA: colors(Math.random() * 30),
+        CHN: colors(Math.random() * 40),
+        IND: colors(Math.random() * 50),
+        PHL: colors(Math.random() * 60),
+        NGA: colors(Math.random() * 70),
+        TUR: colors(Math.random() * 80),
+        ARG: colors(Math.random() * 90),
+        EGY: colors(Math.random() * 100),
+        BGD: colors(Math.random() * 110),
+        PAK: colors(Math.random() * 120),
+        MEX: colors(Math.random() * 130)
       },
       geographyConfig: {
         borderWidth: 0.5,
@@ -68,7 +60,7 @@
         borderColor: 'silver'
       },
        bubblesConfig: {
-        borderWidth: 0.5,
+        borderWidth: 1,
         fillOpacity: 0.7,
       }
   
