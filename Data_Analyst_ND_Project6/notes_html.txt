@@ -1,0 +1,20 @@
+Project Notes
+
+Useful links:
+
+http://datamaps.github.io/
+
+http://www.bogotobogo.com/python/IPython/iPython_Jupyter_Notebook_with_Embedded_D3.php
+
+http://jeffpaine.github.io/geojson-topojson/
+
+http://www.w3schools.com/colors/colors_names.asp
+Source collections:
+
+http://code.highcharts.com/mapdata/
+
+http://www.w3schools.com/colors/colors_names.asp
+
+https://github.com/d3/d3-3.x-api-reference/blob/master/Ordinal-Scales.mdhttp://
+
+www.infoplease.com/ipa/A0762524.html //data
