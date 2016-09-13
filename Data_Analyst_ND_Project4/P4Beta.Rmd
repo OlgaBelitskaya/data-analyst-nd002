@@ -6,6 +6,7 @@ output: html_document
 ---
 
 ```{r global_options, include=FALSE}
+# Setup the general options for code blocks
 knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
 ```
 
@@ -20,7 +21,9 @@ knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
 https://github.com/OlgaBelitskaya/data-analyst-nd002/tree/master/Data_Analyst_ND_Project4
 
 ```{r Working_Directory}
+# Setup working directory
 setwd('/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4')
+# Creating the variable for the path for images
 p='/Users/olgabelitskaya/projects/nd002/Data_Analyst_ND_Project4/figure_html/'
 ```
 
@@ -53,6 +56,7 @@ devtools, knitr, markdown, ggplot2, ggthemes, RColorBrewer, gridExtra, scales,
 reshape2, plyr, GGally, dplyr, tidyr, xlsx, lubridate, plotly, etc.
 
 ```{r Libraries_1}
+# Loading and attaching add-on packages
 library(devtools)
 library(knitr)
 library(markdown)
@@ -71,6 +75,7 @@ library(lubridate)
 ```
 
 ```{r Libraries_2}
+# Loading and attaching add-on packages
 library(corrplot)
 library(PerformanceAnalytics)
 library(plotly)
@@ -96,7 +101,9 @@ http://www.cbr.ru/Eng/hd_base/
 ##### Using suitable functions (read.xlsx, data.frame) I had read the file as a dataframe. It was called "centrobank". The function head() shows us several rows as an example.
 
 ```{r comment='', Data_1}
+# Reading the data from the file
 centrobank <- data.frame(read.xlsx("c_bank.xlsx",sheetName="Data",header=TRUE))
+# Displaying the data example
 head(centrobank,3)
 ```
 
@@ -105,8 +112,11 @@ head(centrobank,3)
 ##### The code displays the number of this kind of rows. As we can see, it's zero.
 
 ```{r comment='', Data_2}
+# Creating the variable for rows with values "NA"
 row.with.na <- apply(centrobank, 1, function(x){any(is.na(x))})
+# Creating the variable s for the number of rows with values "NA"
 s <- sum(row.with.na)
+# Displaying the number of rows with values "NA"
 cat('sum(row.with.na) = ', s)
 ```
 
@@ -115,6 +125,7 @@ cat('sum(row.with.na) = ', s)
 ##### The function str() is very helpful and informative in this case.
 
 ```{r comment='', Data_3}
+# Displaying the information about the variables in the data
 str(centrobank)
 ```
 
@@ -127,6 +138,7 @@ str(centrobank)
 ##### It's naturally to use the function summary() for revising all varibles. It gives us the complete observation of the dataset.
 
 ```{r comment='', Data_4}
+# mean, median, 25th and 75th quartiles, min, max for all variables
 summary(centrobank)
 ```
 
@@ -141,12 +153,15 @@ summary(centrobank)
 ##### After the transformation process we can use the function summary() for these columns too.
 
 ```{r comment='', Data_5}
+# Creating the variable for values without white spaces
 centrobank$temp1 <- gsub(" ","", centrobank$foreign_exchange_reserves)
-centrobank$foreign_exchange_reserves <- as.numeric(centrobank$temp1)
-
 centrobank$temp2 <- gsub(" ","", centrobank$monetary_gold)
+
+# Replacing the values of the variable with the wrong type
+centrobank$foreign_exchange_reserves <- as.numeric(centrobank$temp1)
 centrobank$monetary_gold <- as.numeric(centrobank$temp2)
 
+# mean, median, 25th & 75th quartiles, min, max for new values of two variables
 summary(centrobank$foreign_exchange_reserves)
 summary(centrobank$monetary_gold)
 ```
@@ -154,7 +169,10 @@ summary(centrobank$monetary_gold)
 ##### The temporary variables were removed from our dataset. I created a variable "drop" for temporary columns and excluded them from the original dataset.
 
 ```{r comment='', Data_6}
+# Creating the variable for two temporary columns
 drops <- c("temp1","temp2")
+
+# Deleting the temporary columns
 centrobank <- centrobank[ , !(names(centrobank) %in% drops)]
 ```
 
@@ -163,9 +181,11 @@ centrobank <- centrobank[ , !(names(centrobank) %in% drops)]
 ##### Let's check the characteristics of the variables again:
 
 ```{r comment='', Data_7}
+# Creating the variables for days, months and years
 centrobank$day= as.numeric(format(centrobank$date, "%d"))
 centrobank$month = format(centrobank$date, "%B") 
 centrobank$year = as.numeric(format(centrobank$date, "%Y"))
+# Displaying the information about the variables in the data
 str(centrobank)
 ```
 
@@ -182,86 +202,102 @@ str(centrobank)
 ##### The histogram for the distribution of the dual currency basket I put first because I think it is the most important indicator for the economic situation in the currency market.
 
 ```{r  fig.width=8, fig.height=6, Univariate_Plots_0}
+# Creating the histogram 
 p0 <- ggplot(aes(x = dual_currency_basket), data = centrobank) + 
+# options for the histogram  
   geom_histogram(binwidth = 1, color = 'purple', aes(fill = ..count..)) + 
+# options for the x-scale
   scale_x_continuous(name = 'dual currency basket, rubles', 
                      limits=c(32, 88), breaks=seq(32, 88, 2)) + 
+# options for the color scheme  
   scale_fill_gradientn(colours=terrain.colors(20)) + 
+# applying the theme  
   theme_bw() + 
+# options for the x-axis
   theme(axis.text.x=
-          element_text(size=8,angle=85),axis.title=element_text(size=12))
+          element_text(size=8,angle=5),axis.title=element_text(size=12))
+# Displaying the histogram
 p0
 ```
 
 ##### Then the histograms for the distribution of prices for precious metals in rubles were placed. They were built and grouped with using the packages "ggplot2" and "gridExtra".
 
 ```{r Univariate_Plots_1}
+# Creating the histogram by analogy with the p0
 p1 <- ggplot(aes(x = gold), data = centrobank) + 
   geom_histogram(binwidth = 50, color = 'purple', aes(fill = ..count..)) + 
   scale_x_continuous(name = 'gold, rubles per gram', 
                      limits=c(1200, 3200), breaks=seq(1200, 3200, 50)) + 
   scale_fill_gradientn(colours=heat.colors(20)) + 
   theme_bw() + 
-  theme(axis.text.x=element_text(size=8, angle=85),
+  theme(axis.text.x=element_text(size=10, angle=85),
         axis.title=element_text(size=12))
 ```
 
 ```{r Univariate_Plots_2}
+# Creating the histogram by analogy with the p0
 p2 <- ggplot(aes(x = silver), data = centrobank) + 
   geom_histogram(binwidth = 0.5, color ='darkblue', aes(fill = ..count..)) + 
   scale_x_continuous(name = 'silver, rubles per gram', 
                      limits = c(19, 44), breaks = seq(19, 44, 0.5)) + 
   scale_fill_gradientn(colours=terrain.colors(20)) + 
   theme_bw() + 
-  theme(axis.text.x=element_text(size=8, angle=85),
+  theme(axis.text.x=element_text(size=10, angle=85),
         axis.title=element_text(size=12))
 ```
 
 ```{r Univariate_Plots_3}
+# Creating the histogram by analogy with the p0
 p3 <- ggplot(aes(x = platinum), data = centrobank) + 
   geom_histogram(binwidth = 50, color = 'darkmagenta', aes(fill = ..count..)) + 
   scale_x_continuous(name = 'platinum, rubles per gram', 
                      limits = c(1200, 2800), breaks=seq(1200, 2800, 50)) + 
   scale_fill_gradientn(colours=heat.colors(20)) + 
-  theme_bw() + theme(axis.text.x=element_text(size=8, angle=85),
+  theme_bw() + theme(axis.text.x=element_text(size=10, angle=85),
                      axis.title=element_text(size=12))
 ```
 
 ```{r Univariate_Plots_4}
+# Creating the histogram by analogy with the p0
 p4 <- ggplot(aes(x = palladium), data = centrobank) + 
   geom_histogram(binwidth = 30, color = 'blue', aes(fill = ..count..)) + 
   scale_x_continuous(name = 'palladium, rubles per gram', 
                      limits = c(550, 1750), breaks=seq(550, 1750, 30)) + 
   scale_fill_gradientn(colours=terrain.colors(20)) + 
-  theme_bw() + theme(axis.text.x=element_text(size=8, angle=85),
+  theme_bw() + theme(axis.text.x=element_text(size=10, angle=85),
                      axis.title=element_text(size=12))
 ```
 
-```{r fig.width=14, fig.height=8, Univariate_Plots_5}
+```{r fig.width=15, fig.height=10, Univariate_Plots_5}
+# Combining the histograms
 g101 <- grid.arrange(p1, p2, p3, p4, ncol = 2)
+# Creating the path for the image
 path01=paste(p, 'Univariate_Plots_5_1.png', sep = '')
+# Saving the image with histograms
 ggsave(path01, g101, width = 18, height = 24) 
 ```
 
 ##### We will also examine the histograms for the distribution of prices for the main currencies in the Russian market (euro and dollars), as well as the histograms of foreign exchange reserves and monetary gold.
 
 ```{r Univariate_Plots_6}
+# Creating the histogram by analogy with the p0
 p101 <- ggplot(aes(x = EUR_978), data = centrobank) + 
   geom_histogram(binwidth = 1, color = 'navy', aes(fill = ..count..)) + 
   scale_x_continuous(name = 'EUR, rubles', 
                      limits=c(38, 92), breaks=seq(38, 92, 2)) + 
   scale_fill_gradientn(colours=heat.colors(20)) + 
-  theme_bw() + theme(axis.text.x=element_text(size=8, angle=85),
+  theme_bw() + theme(axis.text.x=element_text(size=8, angle=5),
                      axis.title=element_text(size=12))
 ```
 
 ```{r Univariate_Plots_7}
+# Creating the histogram by analogy with the p0
 p102 <- ggplot(aes(x = USD_840), data = centrobank) + 
   geom_histogram(binwidth = 1, color ='darkblue', aes(fill = ..count..)) + 
   scale_x_continuous(name = 'USD, rubles', 
                      limits = c(28, 84), breaks = seq(28, 84, 2)) + 
   scale_fill_gradientn(colours=terrain.colors(20)) + 
-  theme_bw() + theme(axis.text.x=element_text(size=8, angle=85),
+  theme_bw() + theme(axis.text.x=element_text(size=8, angle=5),
                      axis.title=element_text(size=12))
 ```
 
@@ -276,6 +312,7 @@ p103 <- ggplot(aes(x =foreign_exchange_reserves), data = centrobank) +
 ```
 
 ```{r Univariate_Plots_9}
+# Creating the histogram by analogy with the p0
 p104 <- ggplot(aes(x = monetary_gold), data = centrobank) + 
   geom_histogram(binwidth = 500, color = 'blue', aes(fill = ..count..)) + 
   scale_x_continuous(name = 'monetary gold, mln.USD', 
@@ -285,15 +322,19 @@ p104 <- ggplot(aes(x = monetary_gold), data = centrobank) +
                      axis.title=element_text(size=12))
 ```
 
-```{r fig.width=14, fig.height=8, Univariate_Plots_10}
+```{r fig.width=15, fig.height=10, Univariate_Plots_10}
+# Combining the histograms
 g102 <- grid.arrange(p101, p102, p103, p104, ncol = 2)
+# Creating the path for the image
 path02=paste(p, 'Univariate_Plots_10_1.png', sep = '')
+# Saving the image with histograms
 ggsave(path02, g102, width = 18, height = 24) 
 ```
 
 ##### To understand and predict the situation in the currency market it is necessary to discover the histograms of other currencies (Brazilian real, Japanese yen, Chinese yuan and Indian rupee).
 
 ```{r Univariate_Plots_11}
+# Creating the histogram by analogy with the p0
 p105 <- ggplot(aes(x = BRL_986), data = centrobank) + 
   geom_histogram(binwidth = 0.25, color = 'navy', aes(fill = ..count..)) + 
   scale_x_continuous(name = 'BRL, rubles', 
@@ -304,38 +345,44 @@ p105 <- ggplot(aes(x = BRL_986), data = centrobank) +
 ```
 
 ```{r Univariate_Plots_12}
+# Creating the histogram by analogy with the p0
 p106 <- ggplot(aes(x = JPY_392), data = centrobank) + 
   geom_histogram(binwidth = 0.01, color ='darkblue', aes(fill = ..count..)) + 
   scale_x_continuous(name = 'JPY, rubles', 
                      limits = c(0.3, 0.72), breaks = seq(0.3, 0.72, 0.02)) + 
   scale_fill_gradientn(colours=terrain.colors(20)) + 
-  theme_bw() + theme(axis.text.x=element_text(size=8, angle=85),
+  theme_bw() + theme(axis.text.x=element_text(size=8, angle=5),
                      axis.title=element_text(size=12))
 ```
 
 ```{r Univariate_Plots_13}
+# Creating the histogram by analogy with the p0
 p107 <- ggplot(aes(x =CNY_156), data = centrobank) + 
   geom_histogram(binwidth = 0.2, color='darkmagenta', aes(fill = ..count..)) + 
   scale_x_continuous(name = 'CNY, rubles', limits = c(4.4, 12.8), 
                      breaks=seq(4.4,12.8, 0.4)) + 
   scale_fill_gradientn(colours=terrain.colors(20)) + 
-  theme_bw() + theme(axis.text.x=element_text(size=8, angle=85),
+  theme_bw() + theme(axis.text.x=element_text(size=8, angle=5),
                      axis.title=element_text(size=12))
 ```
 
 ```{r Univariate_Plots_14}
+# Creating the histogram by analogy with the p0
 p108 <- ggplot(aes(x = INR_356), data = centrobank) + 
   geom_histogram(binwidth = 0.02, color = 'blue', aes(fill = ..count..)) + 
   scale_x_continuous(name = 'INR, rubles', limits = c(0.45, 1.25), 
                      breaks=seq(0.45, 1.25, 0.04)) + 
   scale_fill_gradientn(colours=terrain.colors(20)) + 
-  theme_bw() + theme(axis.text.x=element_text(size=8, angle=85),
+  theme_bw() + theme(axis.text.x=element_text(size=8, angle=5),
                      axis.title=element_text(size=12))
 ```
 
-```{r fig.width=14, fig.height=8, Univariate_Plots_15}
+```{r fig.width=15, fig.height=10, Univariate_Plots_15}
+# Combining the histograms
 g103 <- grid.arrange(p105, p106, p107, p108, ncol = 2)
+# Creating the path for the image
 path03=paste(p, 'Univariate_Plots_15_1.png', sep = '')
+# Saving the image with histograms
 ggsave(path03, g103, width = 18, height = 24) 
 ```
 
@@ -348,77 +395,94 @@ ggsave(path03, g103, width = 18, height = 24)
 ##### I didn't include the variable "dual_currency_basket", it depends from EUR and USD and its outliers as well.
 
 ```{r Univariate_Plots_16}
-p112 <- ggplot(centrobank, aes( x = 1, y = EUR_978)) + geom_boxplot() +  
+# Creating the box plots
+p112 <- ggplot(centrobank, aes( x = 1, y = EUR_978)) + geom_boxplot() + 
+# options for points
   geom_jitter(alpha=0.4, size = 1, color = 'orange') +
+# adding the marker for mean
   stat_summary(fun.y=mean, colour="darkred", geom="point", 
                shape=8, size=3)
 
-p113 <- ggplot(centrobank, aes( x = 2, y = USD_840)) + geom_boxplot() +  
+# Creating the box plots by analogy with the p112
+p113 <- ggplot(centrobank, aes( x = 1, y = USD_840)) + geom_boxplot() +  
   geom_jitter(alpha=0.4, size= 1, color = 'orange') +
   stat_summary(fun.y=mean, colour="darkred", geom="point", 
                shape=8, size=3)
 
-p114 <- ggplot(centrobank, aes( x = 3, y = JPY_392)) + geom_boxplot() +  
+# Creating the box plots by analogy with the p112
+p114 <- ggplot(centrobank, aes( x = 1, y = JPY_392)) + geom_boxplot() +  
   geom_jitter(alpha=0.4, size = 1, color = 'brown') +
   stat_summary(fun.y=mean, colour="black", geom="point", 
                shape=8, size=3)
 
-p115 <- ggplot(centrobank, aes( x = 4, y = CNY_156)) + geom_boxplot() +  
+# Creating the box plots by analogy with the p112
+p115 <- ggplot(centrobank, aes( x = 1, y = CNY_156)) + geom_boxplot() +  
   geom_jitter(alpha=0.4, size = 1, color = 'brown') +
   stat_summary(fun.y=mean, colour="black", geom="point", 
                shape=8, size=3)
 
-p116 <- ggplot(centrobank, aes( x = 5, y = INR_356)) + geom_boxplot() +  
+# Creating the box plots by analogy with the p112
+p116 <- ggplot(centrobank, aes( x = 1, y = INR_356)) + geom_boxplot() +  
   geom_jitter(alpha=0.4, size = 1, color = 'brown') +
   stat_summary(fun.y=mean, colour="black", geom="point", 
                shape=8, size=3)
 
-p117 <- ggplot(centrobank, aes( x = 6, y = BRL_986)) + geom_boxplot() +  
+# Creating the box plots by analogy with the p112
+p117 <- ggplot(centrobank, aes( x = 1, y = BRL_986)) + geom_boxplot() +  
   geom_jitter(alpha=0.4, size = 1, color = 'purple') + 
   stat_summary(fun.y=mean, colour="black", geom="point", 
                shape=8, size=3)
 
-p120 <- ggplot(centrobank, aes( x = 9, y = gold)) + geom_boxplot() +  
+# Creating the box plots by analogy with the p112
+p120 <- ggplot(centrobank, aes( x = 1, y = gold)) + geom_boxplot() +  
   geom_jitter(alpha=0.4, size = 1, color = 'blue') +
   stat_summary(fun.y=mean, colour="darkblue", geom="point", 
                shape=8, size=3)
 
-p121 <- ggplot(centrobank, aes( x = 10, y = silver)) + geom_boxplot() +  
+# Creating the box plots by analogy with the p112
+p121 <- ggplot(centrobank, aes( x = 1, y = silver)) + geom_boxplot() +  
   geom_jitter(alpha=0.4, size = 1, color = 'blue') +
   stat_summary(fun.y=mean, colour="darkblue", geom="point", 
                shape=8, size=3)  
 
-p122 <- ggplot(centrobank, aes( x = 11, y = platinum)) + geom_boxplot() +  
+# Creating the box plots by analogy with the p112
+p122 <- ggplot(centrobank, aes( x = 1, y = platinum)) + geom_boxplot() +  
   geom_jitter(alpha=0.4, size = 1, color = 'blue') +
   stat_summary(fun.y=mean, colour="darkblue", geom="point", 
                shape=8, size=3)
 
-p123 <- ggplot(centrobank, aes( x = 12, y = palladium)) + geom_boxplot() +  
+# Creating the box plots by analogy with the p112
+p123 <- ggplot(centrobank, aes( x = 1, y = palladium)) + geom_boxplot() +  
   geom_jitter(alpha=0.4, color = 'blue') + 
   stat_summary(fun.y=mean, colour="darkblue", geom="point", 
                shape=8, size=3)
 
-p118 <- ggplot(centrobank, aes( x = 7, y = foreign_exchange_reserves)) + 
+# Creating the box plots by analogy with the p112
+p118 <- ggplot(centrobank, aes( x = 1, y = foreign_exchange_reserves)) + 
   geom_boxplot() +  geom_jitter(alpha=0.4, color = 'red') +
   stat_summary(fun.y=mean, colour="brown", geom="point", 
                shape=8, size=3)
 
-p119 <- ggplot(centrobank, aes( x = 8, y = monetary_gold)) + geom_boxplot() +  
+# Creating the box plots by analogy with the p112
+p119 <- ggplot(centrobank, aes( x = 1, y = monetary_gold)) + geom_boxplot() +  
   geom_jitter(alpha=0.4, color = 'green') +
   stat_summary(fun.y=mean, colour="darkgreen", geom="point", 
                shape=8, size=3)
 ```
 
 ```{r fig.width=14, fig.height=8, Univariate_Plots_17}
+# Combining the box plots
 g104<- grid.arrange(p112, p113, p114, p115, p116, p117, 
                     p118, p119, p120, p121, p122, p123, ncol = 4)
+# Creating the path for the image
 path06=paste(p, 'Univariate_Plots_17_1.png', sep = '')
+# Saving the image with plots
 ggsave(path06, g104, width = 12, height = 24) 
 ```
 
 ##### All box plots have important indicators: min, max, median, quartiles. Means were marked with points, they were made with the function stat_summary().
 
-##### X-axis is just a serial number of the box plot.
+##### X-axis is just a unit for creating box plots.
 
 ## 3.2. Univariate Analysis
 
@@ -447,23 +511,29 @@ ggsave(path06, g104, width = 12, height = 24)
 ##### I had choosed the R-packages "PerformanceAnalytics" and "corrplot". I created a new dataset only with 13 important variables.
 
 ```{r comment='', Correlation_Plots_1}
+# Creating the variable for names of main indicators
 include <- c("dual_currency_basket", "EUR_978", "USD_840", "JPY_392", "CNY_156", 
              "BRL_986", "INR_356", "gold", "silver", "platinum", "palladium",
              "foreign_exchange_reserves", "monetary_gold")
+# Creating the subset with main indicators
 corr_centrobank <- (centrobank[,include])
+# Displaying the information about the variables in the subset
 str(corr_centrobank)
 ```
 
 ##### The function chart.Correlation() let us display correlations between all these variables.
 
 ```{r fig.width=18, fig.height=24, comment='', Correlation_Plots_2}
+# Creating the correlation chart with "PerformanceAnalytics" 
 chart.Correlation(corr_centrobank, histogram=TRUE, pch=19)
 ```
 
 ##### And I added one correlation chart else with a special color indicator for levels of relationships between variables.
 
 ```{r fig.width=12, fig.height=12, Correlation_Plots_3}
+# Creating the correlation matrix
 mcorr_centrobank <- cor(corr_centrobank)
+# Creating the correlation chart with "corrplot"
 corrplot.mixed(mcorr_centrobank, lower="number", upper="pie", 
                order ="AOE", tl.col="darkblue", tl.cex=0.5)
 ```
@@ -477,16 +547,25 @@ corrplot.mixed(mcorr_centrobank, lower="number", upper="pie",
 ##### The packages "ggplot2" and "gridExtra" are very convenient for combining many plots together. 
 
 ```{r Bivariate_Plots_1}
+# Creating the scatter plot
 p5 <- ggplot(centrobank, 
              aes(x = date, y = BRL_986, 
+# point colors
                  color = format(as.Date(date, format='%d/%m/%Y'), "%Y"))) + 
+# point options
   geom_point(size = 2, shape = 5) + 
-  geom_smooth(method = "lm", se = FALSE, size=1)+ 
-  scale_colour_brewer(palette='Set1') + theme_bw()+
+# options of the smooth line
+  geom_smooth(method = "lm", se = FALSE, size=1) + 
+# options of the color scale 
+  scale_colour_brewer(palette='Set1') + 
+# applying the theme  
+  theme_bw()+
+# options of the legend  
   guides(color=guide_legend(title="year", direction = "horizontal"))
 ```
 
 ```{r Bivariate_Plots_2}
+# Creating the scatter plot by analogy with the p5
 p6 <- ggplot(centrobank, 
              aes(x = date, y = JPY_392, 
                  color = format(as.Date(date, format='%d/%m/%Y'), "%Y"))) + 
@@ -496,6 +575,7 @@ p6 <- ggplot(centrobank,
 ```
 
 ```{r Bivariate_Plots_3}
+# Creating the scatter plot by analogy with the p5
 p7 <- ggplot(centrobank, 
              aes(x = date, y = CNY_156, 
                  color = format(as.Date(date, format='%d/%m/%Y'), "%Y"))) + 
@@ -505,6 +585,7 @@ p7 <- ggplot(centrobank,
 ```
 
 ```{r Bivariate_Plots_4}
+# Creating the scatter plot by analogy with the p5
 p8 <- ggplot(centrobank, 
              aes(x = date, y = INR_356, 
                  color = format(as.Date(date, format='%d/%m/%Y'), "%Y"))) + 
@@ -519,14 +600,16 @@ http://stackoverflow.com/questions/24954912/sharing-a-legend-between-two-combine
 ##### was applied. The image was saved as a file as well.
 
 ```{r fig.width=14, fig.height=10, Bivariate_Plots_5}
+# Creating the function for the common legend
 get_legend <- function(myggplot){
   tmp <- ggplot_gtable(ggplot_build(myggplot))
   leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
   legend <- tmp$grobs[[leg]]
   return(legend)
 }
-
+# Creating the variable for legend options of the plot p5
 legend_g2 <- get_legend(p5)
+# Combining the plots with the common legend
 g2 <- grid.arrange(arrangeGrob(p5 + theme(legend.position="none"),
                                p6 + theme(legend.position="none"),
                                p7 + theme(legend.position="none"),
@@ -534,8 +617,9 @@ g2 <- grid.arrange(arrangeGrob(p5 + theme(legend.position="none"),
                                ncol=2),
                    legend_g2, 
                    ncol=1, heights=c(19, 1))
-
+# Creating the path for the image
 path04=paste(p, 'Bivariate_Plots_5_1.png', sep = '')
+# Saving the image with plots
 ggsave(path04, g2, width = 24, height = 18) 
 ```
 
@@ -548,14 +632,26 @@ ggsave(path04, g2, width = 24, height = 18)
 ##### The breadth of fluctuations in values is emphasized by color decision with the function scale_colour_gradientn().
 
 ```{r Bivariate_Plots_6}
-p9 <- ggplot(centrobank, aes(x = date, y=foreign_exchange_reserves, color = foreign_exchange_reserves)) + geom_jitter(size = 2, alpha=0.3, shape = 6) + 
+# Creating the scatter plot 
+p9 <- ggplot(centrobank, 
+             aes(x = date, y=foreign_exchange_reserves, 
+                 color = foreign_exchange_reserves)) + 
+# point options
+  geom_jitter(size = 2, alpha=0.3, shape = 6) + 
+# options of the color palette
   scale_colour_gradientn(colours=rainbow(10)) + 
+# options of the smooth line
   geom_smooth(aes(y=foreign_exchange_reserves), color = '#FF6633') + 
-  theme_bw() + ylab('foreign exchange reserves, millions of US dollars')
+# applying the theme
+  theme_bw() + 
+# y-axis name
+  ylab('foreign exchange reserves, millions of US dollars')
 ```
 
 ```{r Bivariate_Plots_7}
-p10 <- ggplot(centrobank, aes(x=date,y=monetary_gold,color = monetary_gold)) + 
+# Creating the scatter plot by analogy with the p9
+p10 <- ggplot(centrobank, 
+              aes(x=date,y=monetary_gold,color = monetary_gold)) + 
   geom_jitter(size = 2, alpha=0.3, shape = 6) + 
   scale_colour_gradientn(colours=rainbow(10)) + 
   geom_smooth(aes(y=monetary_gold), color = '#00FFFF') + theme_bw() + 
@@ -563,8 +659,11 @@ p10 <- ggplot(centrobank, aes(x=date,y=monetary_gold,color = monetary_gold)) +
 ```
 
 ```{r fig.width=14, fig.height=8, Bivariate_Plots_8}
+# Combining the plots
 g3 <- grid.arrange(p9, p10, ncol = 1)
+# Creating the path for the image
 path05=paste(p, 'Bivariate_Plots_8_1.png', sep = '')
+# Saving the image with plots
 ggsave(path05, g3, width = 12, height = 24) 
 ```
 
@@ -572,25 +671,34 @@ ggsave(path05, g3, width = 12, height = 24)
 ##### 4.1.4 Plots for prices of precious metals and the dual currency basket.
 
 ```{r Bivariate_Plots_9}
-p11 <- ggplot(centrobank, aes(x=dual_currency_basket, y=gold, color = gold)) + 
+# Creating the scatter plot
+p11 <- ggplot(centrobank, 
+              aes(x=dual_currency_basket, y=gold, color = gold)) + 
+# options for points and for the smooth line
   geom_point() + geom_smooth(color = 'darkred') + 
+# options for the color palette and for the theme
   scale_colour_gradientn(colours=heat.colors(10)) + theme_bw()
 ```
 
 ```{r Bivariate_Plots_10}
-p12 <- ggplot(centrobank, aes(x=dual_currency_basket,y=silver,color = silver)) + 
+# Creating the scatter plot by analogy with the p11
+p12 <- ggplot(centrobank, 
+              aes(x=dual_currency_basket,y=silver,color = silver)) + 
   geom_point() + geom_smooth(color = 'darkgreen') + 
   scale_colour_gradientn(colours=terrain.colors(10)) + theme_bw()
 ```
 
 ```{r Bivariate_Plots_11}
-p13 <- ggplot(centrobank, aes (x=dual_currency_basket, y=platinum, 
-                               color = platinum)) + geom_point() + 
+# Creating the scatter plot by analogy with the p11
+p13 <- ggplot(centrobank, 
+              aes (x=dual_currency_basket, y=platinum, color = platinum)) + 
+  geom_point() + 
   geom_smooth(color='darkred') + 
   scale_colour_gradientn(colours=heat.colors(10)) + theme_bw()
 ```
 
 ```{r Bivariate_Plots_12}
+# Creating the scatter plot by analogy with the p11
 p14 <- ggplot(centrobank, aes (x=dual_currency_basket, y=palladium, 
                                color = palladium)) + 
   geom_point() + geom_smooth(color = 'darkgreen') + 
@@ -598,8 +706,11 @@ p14 <- ggplot(centrobank, aes (x=dual_currency_basket, y=palladium,
 ```
 
 ```{r fig.width=14, fig.height=8, Bivariate_Plots_13}
+# Combining the plots
 g4 <- grid.arrange(p11, p12, p13, p14, ncol = 2)
+# Creating the path for the image
 path07=paste(p, 'Bivariate_Plots_13_1.png', sep = '')
+# Saving the image with plots
 ggsave(path07, g4, width = 18, height = 24) 
 ```
 
@@ -610,44 +721,58 @@ ggsave(path07, g4, width = 18, height = 24)
 ##### The function geom_smooth() helps to evaluate the dependence of one variable on the other.
 
 ```{r Bivariate_Plots_14}
-p15 <- ggplot(centrobank, aes(x=dual_currency_basket,y=JPY_392,color=JPY_392)) + 
+# Creating the scatter plot by analogy with the p11
+p15 <- ggplot(centrobank, 
+              aes(x=dual_currency_basket,y=JPY_392,color=JPY_392)) + 
   geom_point() + geom_smooth(color = 'darkred') + 
   scale_colour_gradientn(colours=heat.colors(10)) + theme_bw()
 ```
 
 ```{r Bivariate_Plots_15}
-p16 <- ggplot(centrobank,aes(x=dual_currency_basket,y=CNY_156,color = CNY_156))+ 
+# Creating the scatter plot by analogy with the p11
+p16 <- ggplot(centrobank,
+              aes(x=dual_currency_basket,y=CNY_156,color = CNY_156))+ 
   geom_point() + geom_smooth(color = 'darkred') + 
   scale_colour_gradientn(colours=heat.colors(10)) + theme_bw()
 ```
 
 ```{r Bivariate_Plots_16}
-p17 <- ggplot(centrobank,aes(x=dual_currency_basket,y=INR_356,color=INR_356)) + 
+# Creating the scatter plot by analogy with the p11
+p17 <- ggplot(centrobank,
+              aes(x=dual_currency_basket,y=INR_356,color=INR_356)) + 
   geom_point() + geom_smooth(color='darkred')+ 
   scale_colour_gradientn(colours=heat.colors(10)) + theme_bw()
 ```
 
 ```{r Bivariate_Plots_17}
-p18 <- ggplot(centrobank, aes (x=JPY_392, y=CNY_156, color = CNY_156)) + 
+# Creating the scatter plot by analogy with the p11
+p18 <- ggplot(centrobank, 
+              aes (x=JPY_392, y=CNY_156, color = CNY_156)) + 
   geom_point() + geom_smooth(color = 'darkgreen') + 
   scale_colour_gradientn(colours=terrain.colors(10)) + theme_bw()
 ```
 
 ```{r Bivariate_Plots_18}
-p19 <- ggplot(centrobank, aes (x=CNY_156, y=INR_356, color = INR_356)) + 
+# Creating the scatter plot by analogy with the p11
+p19 <- ggplot(centrobank, 
+              aes (x=CNY_156, y=INR_356, color = INR_356)) + 
   geom_point() + geom_smooth(color = 'darkgreen') + 
   scale_colour_gradientn(colours=terrain.colors(10)) + theme_bw()
 ```
 
 ```{r Bivariate_Plots_19}
+# Creating the scatter plot by analogy with the p11
 p20 <- ggplot(centrobank, aes (x=JPY_392, y=INR_356, color = INR_356)) + 
   geom_point() + geom_smooth(color = 'darkgreen') + 
   scale_colour_gradientn(colours=terrain.colors(10)) + theme_bw()
 ```
 
 ```{r fig.width=14, fig.height=12, Bivariate_Plots_20}
+# Combining displaying the plots
 g5 <- grid.arrange(p15, p16, p17, p18, p19, p20, ncol = 3)
+# Creating the path for the image
 path08=paste(p, 'Bivariate_Plots_20_1.png', sep = '')
+# Saving the image with plots
 ggsave(path08, g5, width = 18, height = 24) 
 ```
 
@@ -656,12 +781,16 @@ ggsave(path08, g5, width = 18, height = 24)
 ##### 4.1.6 Plots for foreign exchange reserves and monetary gold reserves.
 
 ```{r Bivariate_Plots_21}
+# Creating the scatter plot by analogy with the p11
 p21 <- ggplot(centrobank, aes (x=foreign_exchange_reserves, 
                                y=monetary_gold, color = monetary_gold)) + 
   geom_jitter(shape = 13, size = 4) + geom_smooth(color = '#00FF99') + 
   scale_colour_gradientn(colours=terrain.colors(10)) + theme_bw()
+# Displaying the plot
 p21
+# Creating the path for the image
 path09=paste(p, 'Bivariate_Plots_21_1.png', sep = '')
+# Saving the image with plots
 ggsave(path09, p21, width = 12, height = 8)
 ```
 
@@ -682,6 +811,7 @@ ggsave(path09, p21, width = 12, height = 8)
 ##### The function cor.test() helps to test for association between paired samples, using one of Pearson's product moment correlation coefficient.
 
 ```{r comment='', Correlation_Tests_1}
+# Testing and displaying the results of the correlation tests 
 with(centrobank, cor.test(dual_currency_basket, gold))
 with(centrobank, cor.test(dual_currency_basket, silver))
 with(centrobank, cor.test(dual_currency_basket, platinum))
@@ -689,6 +819,7 @@ with(centrobank, cor.test(dual_currency_basket, palladium))
 ```
 
 ```{r comment='', Correlation_Tests_2}
+# Testing and displaying the results of the correlation tests 
 with(centrobank, cor.test(dual_currency_basket, JPY_392))
 with(centrobank, cor.test(dual_currency_basket, CNY_156))
 with(centrobank, cor.test(dual_currency_basket, INR_356))
@@ -698,6 +829,7 @@ with(centrobank, cor.test(INR_356, CNY_156))
 ```
 
 ```{r comment='', Correlation_Tests_3}
+# Testing and displaying the results of the correlation tests 
 with(centrobank, cor.test(foreign_exchange_reserves, monetary_gold))
 ```
 
@@ -718,14 +850,22 @@ with(centrobank, cor.test(foreign_exchange_reserves, monetary_gold))
 ##### Here we will use the added variable "year" to analyze the relationships between two other variables. For better visual results I had used the function facet_wrap() for faceting by year.
 
 ```{r fig.width=10, fig.height=6, comment='', Multivariate_Plots_1}
-p24 <- ggplot(centrobank, aes(x=dual_currency_basket, y = gold, color = year))+ 
-  geom_point(shape=10, alpha=0.5, size = 2) + 
-  facet_wrap( ~ year, ncol=3, scale = 'free') + geom_smooth() + 
+# Creating the scatter plot
+p24 <- ggplot(centrobank, 
+              aes(x=dual_currency_basket, y = gold, color = year))+
+# options of point and the smooth line
+  geom_point(shape=10, alpha=0.5, size = 2) + geom_smooth() +
+# faceting by year
+  facet_wrap( ~ year, ncol=3, scale = 'free') + 
+# options for the color palette and for the theme
   scale_colour_gradientn(colours=heat.colors(5)) + theme_bw() +
+# title
   ggtitle('Gold prices and dual currency basket in 2012-2016, rubles')
-
+# Displaying the plot
 p24
+# Creating the path for the image
 path10=paste(p, 'Multivariate_Plots_1_1.png', sep = '')
+# Saving the image with plots
 ggsave(path10, p24, width = 18, height = 12)
 ```
 
@@ -734,17 +874,19 @@ ggsave(path10, p24, width = 18, height = 12)
 ##### Here one of the most effective packages "plotly" was applied. I used a 3D scatterplot.
 
 ```{r fig.width=8, fig.height=6, Multivariate_Plots_2}
+# Creating the 3D-scatter plot with options(text, marker, color, etc.)
 pl1 <- plot_ly(centrobank, x=JPY_392, y=CNY_156, 
                z=INR_356, color = gold, 
                text = paste(date, "gold price: ", gold), 
                colors = 'Spectral', type="scatter3d", mode="markers", 
                marker = list(size = 8, symbol = "circle-open"))
+# Creating layout of the plot
 pl2 <- layout(pl1, title = "Prices for Gold and Rates for JPY, CNY, INR",
          scene = list(
            xaxis = list(title = "JPY 392"), 
            yaxis = list(title = "CNY 156"), 
            zaxis = list(title = "INR_356")))
-
+# Displaying the plot
 pl2
 ```
 
@@ -757,17 +899,21 @@ pl2
 ##### To organize the graph space (titles, axes, etc.) the function layout() was used.
 
 ```{r fig.width=8, fig.height=6, Multivariate_Plots_3}
+# Creating the 3D-scatter plot with options(text, marker, color, etc.)
 pl3 <- plot_ly(centrobank, x=gold, y=silver, z=platinum, 
                color = dual_currency_basket, 
                text = paste(date, 
                             "dual currency basket: ", dual_currency_basket), 
                colors = 'Spectral', type="scatter3d", mode="markers", 
                marker = list(size = 8, symbol = "diamond-open"))
-pl4 <- layout(pl3, title = 
-                "Prices for Gold, Silver, Platinum and Dual Currency Basket",
-              scene = list(xaxis = list(title = "gold"), 
-                           yaxis = list(title = "silver"), 
-                           zaxis = list(title = "platinum")))
+# Creating layout of the plot
+pl4 <- layout(pl3, title = "Prices for Gold, Silver, 
+              Platinum and Dual Currency Basket",
+         scene = list(
+           xaxis = list(title = "gold"), 
+           yaxis = list(title = "silver"), 
+           zaxis = list(title = "platinum")))
+# Displaying the plot
 pl4
 ```
 
@@ -782,36 +928,40 @@ pl4
 ##### I created the dataset centrobank_y with means per year and the variable centrobank_y$silver100 for this goal.
 
 ```{r Multivariate_Plots_4}
+# Creating the new dataset with year means 
 centrobank_y <- aggregate(corr_centrobank, list(centrobank$year), mean)
+# Adding the variable for the price of 100 g of silver
 centrobank_y$silver100 <- 100*centrobank_y$silver
 ```
 
 ##### To combine charts for four metals I used the function add_trace().
 
-```{r fig.width=9, fig.height=6, Multivariate_Plots_5}
+```{r fig.width=10, fig.height=7, Multivariate_Plots_5}
+# Adding the variables for the title and names of axes
 t1='Year Means of Prices for Precious Metals/Year means of Dual Currency Basket'
 x1 = 'year'
 y1 = 'mean of prices for precious metals/mean of dual currency basket'
-
+# Creating the bar plot
 p130 <- plot_ly(centrobank_y, x=c(2012,2013,2014,2015,2016), 
                 y =gold/dual_currency_basket, 
                 name = "gold / dual currancy basket", type = "bar")
-
+# Adding the variable
 p131 <- add_trace(centrobank_y, x=c(2012,2013,2014,2015,2016), 
                   y=silver100/dual_currency_basket, 
                   name = "silver100 / dual currancy basket", type = "bar")
-
+# Adding the variable
 p132 <- add_trace(centrobank_y, x=c(2012,2013,2014,2015,2016), 
                   y=palladium/dual_currency_basket, 
                   name = "palladium / dual currency basket", type = "bar")
-
+# Adding the variable
 p133 <- add_trace(centrobank_y, x=c(2012,2013,2014,2015,2016), 
                   y=platinum/dual_currency_basket, 
                   name = "platinum / dual currency basket", type = "bar")
-
+# Creating layout of the plot
 pl5 <- layout(p133, title = t1, 
                    xaxis = list(title = x1, showgrid = F), 
                    yaxis = list(title = y1, showgrid = F))
+# Displaying the plot
 pl5
 ```
 
@@ -822,6 +972,7 @@ pl5
 ##### For combining all the rates and prices on the same graphs I created and added the variables for indicators with coefficients: 50 USD, 50 EUR, 300 CNY, 4000 JPY, 100 BRL, 3000 INR, 100g of silver.
 
 ```{r Data_Series_1}
+# Creating and adding the variables for indicators with coefficients
 centrobank$USD50 <- 50*centrobank$USD_840
 centrobank$EUR50 <- 50*centrobank$EUR_978
 centrobank$CNY300 <- 300*centrobank$CNY_156
@@ -834,19 +985,25 @@ centrobank$silver100 <- 100*centrobank$silver
 ##### For applying the package "dygraphs", I created from the source database a new data set with time series. The function xts() was very helpful.
 
 ```{r Data_Series_2}
+# Creating the dataset with time series
 centrobank_xts <- xts(centrobank[, -1], centrobank[, 1])
 ```
 
 ```{r Data_Series_3}
+# Creating the variable for the list of currencies
 list_v1 <- c("EUR50", "USD50", "CNY300", "JPY4000", "BRL100", "INR3000")
+# Creating the dataset with time series of currencies
 rates_xts <- (centrobank_xts[,list_v1])
 ```
 
 ##### The function dygraph() let us combine all rates on the same chart.
 
 ```{r fig.width=9, fig.height=6, Multivariate_Plots_6}
+# Creating the line plot
 dygraph(rates_xts, main = "Exchange Rates" ) %>%
+# color options
   dyOptions(colors = RColorBrewer::brewer.pal(6, "Set2")) %>%
+# displaying options
   dyHighlight(highlightCircleSize = 4, 
               highlightSeriesBackgroundAlpha = 0.5,
               hideOnMouseOut = FALSE)
@@ -855,13 +1012,18 @@ dygraph(rates_xts, main = "Exchange Rates" ) %>%
 ##### This method is useful for prices of precious metals also.
 
 ```{r Data_Series_4}
+# Creating the variable for the list of metals
 list_v2 <- c("gold", "platinum", "palladium", "silver100")
+# Creating the dataset with time series of metal prices
 prices_xts <- (centrobank_xts[,list_v2])
 ```
 
 ```{r fig.width=9, fig.height=6, Multivariate_Plots_7}
+# Creating the line plot
 dygraph(prices_xts, main = "Prices for Precious Metals" ) %>%
+# color options
   dyOptions(colors = RColorBrewer::brewer.pal(4, "Set2")) %>%
+# displaying options
   dyHighlight(highlightCircleSize = 4, 
               highlightSeriesBackgroundAlpha = 0.5,
               hideOnMouseOut = FALSE)
@@ -886,10 +1048,13 @@ dygraph(prices_xts, main = "Prices for Precious Metals" ) %>%
 ##### For fitting the linear model the functions lm() and mtable() were used.
 
 ```{r, Building_Linear_Model}
+# Creating the variable for the linear model
 m1 <- lm(gold ~ dual_currency_basket, data = centrobank)
+# extension of the model by adding variables
 m2 <- update(m1, ~ . + platinum)
 m3 <- update(m2, ~ . + palladium)
 m4 <- update(m3, ~ . + silver)
+# the table of estimates for several models
 mtable(m1, m2, m3, m4)
 ```
 
@@ -906,16 +1071,17 @@ mtable(m1, m2, m3, m4)
 ##### The first surprising finding for me is decreasing of the ratio of year means of prices of the precious metals to year means of the cost of dual currency basket.
 
 ```{r fig.width=9, fig.height=6, Plot_One_1}
-
+# Creating the bar plot p130 with new layout options
 p_final1 <- layout(p133, title = t1, barmode = 'stack', 
                    xaxis = list(title = x1, showgrid = F), 
                    yaxis = list(title = y1, showgrid = F))
+# Displaying the plot
 p_final1
 ```
 
 ### 6.1.2 Description One
 
-##### We can see the tendency: in general the ratio of the prices for precious metals to the value of the dual currency basket falls from 2012 to 2015. Only the beginning of 2016 shows a small increase in this ratio, but not for all metals.
+##### We can see the tendency: in general the ratio of the prices for precious metals to the value of the dual currency basket falls from 2012 to 2015. Only the beginning of 2016 shows a small increase in this ratio, but not for all metals. 
 
 ##### In practice this means that precious metals are important reserves and constantly increasing in price, but they cannot be considered as an effective investment, especially for the short terms.
 
@@ -926,13 +1092,18 @@ p_final1
 ##### Let's look at one place on the changes in exchange rates and the prices of precious metals.
 
 ```{r Plot_Two_1}
+# Creating the variable for the list of metals and currencies
 list_vf <- c("EUR50", "USD50", "CNY300", "gold", "platinum")
+# Creating the dataset with time series 
 data_xts <- (centrobank_xts[,list_vf])
 ```
 
 ```{r fig.width=9, fig.height=6, Plot_Two_2}
+# Creating the line plot
 dygraph(data_xts, main = "Prices for Precious Metals and Exchange Rates" ) %>%
+# color options
   dyOptions(colors = RColorBrewer::brewer.pal(5, "Set1")) %>%
+# displaying options
   dyHighlight(highlightCircleSize = 4, 
               highlightSeriesBackgroundAlpha = 0.5,
               hideOnMouseOut = FALSE)
@@ -951,16 +1122,23 @@ dygraph(data_xts, main = "Prices for Precious Metals and Exchange Rates" ) %>%
 ##### The third surprising fact was significantly various tendencies for the economic indicators in short and long terms. Let us estimate the difference in the behavior of prices for precious metals.
 
 ```{r Plot_Three_1}
+# Creating the scatter plot
 p25 <- ggplot(centrobank, 
               aes(x=dual_currency_basket, 
                   y = (gold+silver+platinum+palladium)/4, color = year)) + 
+# point options and the smooth line
   geom_point(shape=7, alpha=0.5, size = 2) + geom_smooth() + 
+# options of the color scale
   scale_colour_gradientn(colours=rainbow(5)) + 
+# title
   ggtitle('Mean of prices for precious metals and dual currency basket,
-          rubles') + theme_bw()
+          rubles') + 
+# applying the theme
+  theme_bw()
 ```
 
 ```{r Plot_Three_2}
+# Creating the same plot with faceting by year
 p26 <- ggplot(centrobank, 
               aes(x=dual_currency_basket, 
                   y = (gold+silver+platinum+palladium)/4, color = year)) + 
@@ -972,8 +1150,11 @@ p26 <- ggplot(centrobank,
 ```
 
 ```{r fig.width=14, fig.height=20, Plot_Three_3}
+# Combining and displaying the plots
 p_final3 <- grid.arrange(p25, p26, ncol=1)
+# Creating the path for the image
 path12=paste(p, 'Plot_Three_3_1.png', sep = '')
+# Saving the image with plots
 ggsave(path12, p_final3, width = 18, height = 24)
 ```
 
