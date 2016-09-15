@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>P6: Make Effective Data Visualization</title>
+            <script src="http://d3js.org/d3.v3.js"></script>
+                <style>
+
+                    body {background-color: aliceblue;}
+
+                    text {font-weight: 900;}
+                    
+                    h1 {color: darkblue; font-size: 20;}
+
+                    h2 {text-align: center; color: royalblue; font-size: 16;} 
+
+                    circle { 
+                        stroke: darkblue;
+                        stroke-width: 1.2;
+                        opacity: 0.4;
+                    }   
+  
+                    div.country_buttons {
+                        position: fixed;
+                        top: 5px;
+                        left: 50px;
+                    }
+
+                    div.country_buttons div {
+                        background-color: rgb(251, 201, 127);
+                        padding: 3px;
+                        margin: 7px;
+                    }
+                </style>
+            <script type="text/javascript">
+                function draw(geo_data) {
+                    "use strict";
+
+                    var margin = 50,
+                        width = 1200 - margin,
+                        height = 500 - margin;
+
+                    var colors = d3.scale.category20c();
+
+                    var bubble_colors = [
+                      'red', 'deeppink', 'darkorchid', 'royalblue',
+                      'limegreen', 'crimson', 'mediumturquoise', 'tomato',
+                      'brown', 'deepskyblue', 'gold', 'chocolate',
+                      'purple', 'aqua', 'coral', 'chartreuse',
+                      'fuchsia', 'yellogreen', 'blue', 'forestgreen' 
+                    ];
+
+                    d3.select("body")
+                      .append("h1")
+                      .text("P6: Make Effective Data Visualization");
+
+                    d3.select("body")
+                      .append("h2")
+                      .text("Population Growth in 20 Most Populous Cities of the World from 1990 to 2014");
+
+                    var svg = d3.select("body")
+                                .append("svg")
+                                .attr("width", width + margin)
+                                .attr("height", height + margin)
+                                .append('g')
+                                .attr('class', 'map');
+
+                    var projection = d3.geo.mercator()
+                                           .scale(240)
+                                           .translate([width / 2, height / 1.6]);
+
+                    var path = d3.geo.path().projection(projection);
+
+                    var radius = d3.scale.linear()
+                           .domain([15, 200])
+                           .range([5, 50]);
+
+                    var map = svg.selectAll('path')
+                                 .data(geo_data.features)
+                                 .enter()
+                                 .append('path')
+                                 .attr('d', path)
+                                 .style('fill', 'steelblue')
+                                 .style('stroke', 'silver')
+                                 .style('stroke-width', 1)
+                                 .style('opacity', 0.7);
+
+                    d3.tsv("huge_cities.tsv", function(data) {
+                        var city = svg.selectAll("g.city")
+                                      .data(data)
+                                      .enter()
+                                      .append("g")
+                                      .attr("class", "city")
+                                      .attr("transform", function(d) { return "translate(" + projection([d.Longitude, d.Latitude]) + ")"; });
+
+                        city.append("circle")
+                            .attr("r", function(d) {
+                              return radius(d.Growth);
+                            })
+                            .attr("fill", function(d) { return bubble_colors[d.Rank] });
+
+
+                        city.append("text")
+                            .attr("x", 0)
+                            .attr("y", 0)
+                            .attr("transform", "translate(0,0) rotate(30)")
+                            .style("fill", "darkblue")
+                            .style("font-family", "sans-serif")
+                            .style("text-decoration", "underline")
+                            .style("font-size", 15)
+                            .style("opacity", 0.9)
+                            .text(function(d) { return d.Rank; });
+                    });
+
+                    debugger;
+                    
+
+                };
+
+            </script>
+    </head>
+
+    <body>
+        <script type="text/javascript">
+
+            d3.json("world_countries.json", draw);
+            
+        </script>
+    </body>
+</html>

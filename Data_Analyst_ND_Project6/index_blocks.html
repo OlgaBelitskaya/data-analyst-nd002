@@ -56,6 +56,16 @@
 
 <body>
   <script type="text/javascript">
+
+    d3.tsv("huge_cities.tsv", function(d) {
+      d['city'] = d['City'];
+      d['country'] = d['Country'];
+      d['growth'] = +d['Growth,'];
+      d['country_code'] = d['Country_code'];
+      d['latitude'] = +d['Latitude'];
+      d['longitude'] = +d['Longitude'];
+      return d;
+    }, data);
  
     var map = new Datamap({
       element: document.getElementById('container'),
