@@ -20,17 +20,6 @@
                         opacity: 0.4;
                     }   
   
-                    div.country_buttons {
-                        position: fixed;
-                        top: 5px;
-                        left: 50px;
-                    }
-
-                    div.country_buttons div {
-                        background-color: rgb(251, 201, 127);
-                        padding: 3px;
-                        margin: 7px;
-                    }
                 </style>
             <script type="text/javascript">
                 function draw(geo_data) {
@@ -39,8 +28,6 @@
                     var margin = 50,
                         width = 1200 - margin,
                         height = 500 - margin;
-
-                    var colors = d3.scale.category20c();
 
                     var bubble_colors = [
                       'red', 'deeppink', 'darkorchid', 'royalblue',
@@ -110,10 +97,8 @@
                             .style("font-size", 15)
                             .style("opacity", 0.9)
                             .text(function(d) { return d.Rank; });
-                    });
 
-                    debugger;
-                    
+                    });
 
                 };
 

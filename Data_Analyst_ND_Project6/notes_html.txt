@@ -5,6 +5,8 @@ Useful links:
 
 http://datamaps.github.io/
 
+http://basemaptutorial.readthedocs.io/en/latest/installation.html
+
 http://www.bogotobogo.com/python/IPython/iPython_Jupyter_Notebook_with_Embedded_D3.php
 
 https://www.dashingd3js.com/table-of-contents

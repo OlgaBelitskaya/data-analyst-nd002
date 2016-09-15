@@ -22,17 +22,6 @@
                         color: indigo;
                     }   
   
-                    div.country_buttons {
-                        position: fixed;
-                        top: 5px;
-                        left: 50px;
-                    }
-
-                    div.country_buttons div {
-                        background-color: rgb(251, 201, 127);
-                        padding: 3px;
-                        margin: 7px;
-                    }
                 </style>
             <script type="text/javascript">
                 function draw(geo_data) {
@@ -72,7 +61,6 @@
                                  .style('stroke', 'darkblue')
                                  .style('stroke-width', 1)
                                  .style('opacity', 0.7);
-                    debugger;
 
                     d3.tsv("cities_world.tsv", function(data) {
                         var city = svg.selectAll("g.city")
@@ -93,8 +81,6 @@
                             .style("opacity", 0.8)
                             .text(function(d) { return d.Number; });
                     });
-
-                    debugger;
                     
 
                 };
