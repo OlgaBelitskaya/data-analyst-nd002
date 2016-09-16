@@ -3,13 +3,16 @@
 
 Useful links:
 
-http://datamaps.github.io/
-
 http://basemaptutorial.readthedocs.io/en/latest/installation.html
 
 http://www.bogotobogo.com/python/IPython/iPython_Jupyter_Notebook_with_Embedded_D3.php
 
 https://www.dashingd3js.com/table-of-contents
+
+http://datamaps.github.io/
+
+
+
 
 ################################################################################
 
@@ -25,17 +28,36 @@ http://techslides.com/over-2000-d3-js-examples-and-demos
 
 http://www.w3schools.com/colors/colors_names.asp
 
-http://www.w3schools.com/css/css_background.asp
-
-https://github.com/d3/d3-3.x-api-reference/blob/master/Ordinal-Scales.mdhttp://
-
 http://jeffpaine.github.io/geojson-topojson/
 
 http://papaparse.com/
 
-http://api.highcharts.com/series%3Cmapbubble%3E.joinBy
+http://api.highcharts.com/
 
 ################################################################################
+
+Tools and fragments:
+
+1) From CSV to HTML table (Advanced):
+
+https://bl.ocks.org/ndarville/7241320
+
+2) D3 Mouse Events:
+
+http://bl.ocks.org/WilliamQLiu/76ae20060e19bf42d774
+
+3) Working with Transitions
+
+https://bost.ocks.org/mike/transition/
+
+4) Ordinal Scales:
+
+https://github.com/d3/d3-3.x-api-reference/blob/master/Ordinal-Scales.mdhttp://
+
+5) CSS Background:
+
+http://www.w3schools.com/css/css_background.asp
+
 
 Data:
 

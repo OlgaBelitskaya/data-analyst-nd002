@@ -217,6 +217,16 @@
                         };
 
 
+                  var text = textbox.selectAll("text")
+                                      .data(data).enter()
+                                      .append("textbox")
+                                      .attr("class", "text");
+
+                    text.append("rows")
+                        .attr("y", function(d) { return 10*d.Rank; })
+                        .text(function(d) { 
+                            return d.Rank + " " + d.City; 
+                        });
 
 
 

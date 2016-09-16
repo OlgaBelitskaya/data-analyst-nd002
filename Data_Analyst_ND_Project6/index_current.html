@@ -62,18 +62,7 @@
                         stroke-width: 1.2;
                         opacity: 0.5;
                     }   
-  
-                    div.country_buttons {
-                        position: fixed;
-                        top: 5px;
-                        left: 50px;
-                    }
-
-                    div.country_buttons div {
-                        background-color: rgb(251, 201, 127);
-                        padding: 3px;
-                        margin: 7px;
-                    }
+                     
                 </style>
             <script type="text/javascript">
                 function draw(world) {
@@ -177,7 +166,6 @@
                     return table;
                   };
 
-
                   function city_plot(data) {
 
                     var city = svg.selectAll("g.city")
@@ -191,8 +179,17 @@
 
                     city.append("circle")
                         .attr("r", function(d) {return radius(d.Growth); })
-                        .attr("fill", function(d) { return bubble_colors[d.Rank-1] });
-
+                        .attr("fill", function(d) { return bubble_colors[d.Rank-1] })
+                        .on("mouseover", function() { 
+                          d3.selectAll("circle").transition()
+                                .duration(200)
+                                .style("opacity",1)
+                        })
+                        .on("mouseout", function() {
+                          d3.selectAll("circle").transition()
+                                .duration(200)
+                                .style("opacity",0.5)
+                        });
 
                     city.append("text")
                         .attr("x", 0)
@@ -222,8 +219,6 @@
 
                      
                   d3.tsv("huge_cities.tsv", city_plot);   
-
-                    debugger;
 
                 };
 
