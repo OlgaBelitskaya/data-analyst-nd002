@@ -192,6 +192,51 @@
     }, 2000);       
 
 
+
+
+                          function update(code) {
+
+                          function key_func(d) { return d['key']; };
+
+                          var filtered = nested.filter(function(d) {
+                            return d.Country_code === code 
+                          });
+
+                          var circles = svg.selectAll('circle')
+                                           .data(filtered, key_func());
+
+                          circles.exit().remove();
+
+                          circles.enter()
+                          .append("circle")
+                          .attr("r", function(d) {
+                              return radius(d.Growth);
+                          })
+                          .attr("fill", function(d) { return bubble_colors[d.Rank] });
+                      
+                        };
+
+
+
+
+
+
+
+
+
+var codes = d3.set();
+
+                    data.forEach(function(d) { codes.add(d.Country_code); });
+
+                    var buttons = d3.select("body")
+                                .append("div")
+                                .attr("class", "years_buttons")
+                                .selectAll("div")
+                                .data(years)
+                                .enter()
+                                .append("div")
+                                .text(function(d) { return d; });
+
   </script>
 </body>
 </html>
