@@ -9,7 +9,7 @@
 
                     body {background-color: aliceblue;}
 
-                     table {
+                    table {
                       background-color: lightsteelblue;
                       opacity: 0.8;
                       border-collapse: collapse;
@@ -60,7 +60,7 @@
                     circle { 
                         stroke: darkblue;
                         stroke-width: 1.2;
-                        opacity: 0.5;
+                        opacity: 0.4;
                     }   
                      
                 </style>
@@ -183,16 +183,16 @@
                         .on("mouseover", function() { 
                           d3.selectAll("circle").transition()
                                 .duration(200)
-                                .style("opacity",1)
+                                .style("opacity",0.8)
                         })
                         .on("mouseout", function() {
                           d3.selectAll("circle").transition()
                                 .duration(200)
-                                .style("opacity",0.5)
+                                .style("opacity",0.4)
                         });
 
                     city.append("text")
-                        .attr("x", 0)
+                        .attr("x", -3)
                         .attr("y", 0)
                         .attr("transform", "translate(0,0) rotate(0)")
                         .style("fill", "darkblue")

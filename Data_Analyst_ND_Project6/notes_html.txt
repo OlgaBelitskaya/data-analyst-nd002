@@ -11,6 +11,7 @@ https://www.dashingd3js.com/table-of-contents
 
 http://datamaps.github.io/
 
+https://www.w3.org/TR/SVG/
 
 
 
@@ -58,6 +59,11 @@ https://github.com/d3/d3-3.x-api-reference/blob/master/Ordinal-Scales.mdhttp://
 
 http://www.w3schools.com/css/css_background.asp
 
+6) Multi-Series Line Chart:
+
+http://bl.ocks.org/mbostock/3884955
+
+################################################################################
 
 Data:
 
