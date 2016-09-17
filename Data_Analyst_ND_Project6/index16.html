@@ -35,7 +35,6 @@
                     svg {
                       border: 1px solid blue;
                       background-color: lightsteelblue;
-                      height: 80%;
                     }
 
                     .land { 
@@ -102,7 +101,7 @@
                                 
                   var projection = d3.geo.equirectangular()
                                          .scale(230)
-                                         .translate([width/2, height/1.3])
+                                         .translate([width/2, height/1.4])
 
 
                   var path = d3.geo.path()
@@ -182,40 +181,40 @@
                         .attr("r", function(d) {return radius(d.Growth); })
                         .attr("fill", function(d) { return bubble_colors[d.Rank-1] })
                         .on("mouseover", function() { 
-                          d3.select(this).transition()
-                                         .duration(200)
-                                         .style("opacity",0.8);
+                          d3.selectAll("circle").transition()
+                                                .duration(200)
+                                                .style("opacity",0.8);
                         })
                         .on("mouseout", function() {
-                          d3.select(this).transition()
+                          d3.selectAll("circle").transition()
                                                 .duration(200)
                                                 .style("opacity",0.4);
                         });
 
                     city.append("text")
-                        .attr("x", -2)
-                        .attr("y", 7)
+                        .attr("x", -3)
+                        .attr("y", 0)
                         .attr("transform", "translate(0,0) rotate(0)")
                         .style("font-weight", 900)
                         .style("fill", "darkblue")
                         .style("text-decoration", "underline")
                         .text(function(d) { return d.Rank; })
                         .on("mouseover", function() { 
-                          d3.select(this).transition()
-                                         .duration(200)
-                                         .style("fill", "blue")
-                                         .style("font-size", 20)
-                                         .style("opacity",1)
-                                         .text(function(d) { return d.Growth + "%"; });
+                          d3.selectAll("text").transition()
+                                              .duration(200)
+                                              .style("fill", "blue")
+                                              .style("font-size", 20)
+                                              .style("opacity",1)
+                                              .text(function(d) { return d.Growth + "%"; });
                         })
                         .on("mouseout", function() {
-                          d3.select(this).transition()
-                                         .duration(200)
-                                         .style("opacity",0.4)
-                                         .style("fill", "darkblue")
-                                         .style("font-size", 15)
-                                         .style("opacity", 0.8)
-                                         .text(function(d) { return d.Rank; });
+                          d3.selectAll("text").transition()
+                                              .duration(200)
+                                              .style("opacity",0.4)
+                                              .style("fill", "darkblue")
+                                              .style("font-size", 15)
+                                              .style("opacity", 0.8)
+                                              .text(function(d) { return d.Rank; });
                         });
 
                     var city_table = columns_table(data, ["Rank", "City"]);
