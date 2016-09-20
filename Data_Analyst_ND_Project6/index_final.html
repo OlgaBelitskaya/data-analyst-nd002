@@ -6,7 +6,7 @@
             <script src="http://d3js.org/d3.v3.js"></script>
             <script src="http://d3js.org/topojson.v0.min.js"></script>
                 <style>
-// 
+                   
                     body {background-color: aliceblue;}
 
                     table {
@@ -71,15 +71,15 @@
                      
                 </style>
             <script type="text/javascript">
+
+// Create the function for drawing the map 
                 function draw(world) {
                   "use strict";
-
+// Setup width, height, margin
                   var margin = 125,
                       width = 1025 - margin,
                       height = 503 - margin;
-
-//  C
-
+// Colors for circles
                   var bubble_colors = [
                       'red', 'deeppink', 'darkorchid', 'indigo',
                       'palegreen', 'limegreen', 'mediumturquoise', 'tomato',
@@ -87,11 +87,11 @@
                       'purple', 'aqua', 'yellow', 'deepskyblue',
                       'fuchsia', 'crimson', 'blue', 'forestgreen' 
                     ];
-
+// The scale for the radius of circles
                   var radius = d3.scale.linear()
                                          .domain([15, 200])
                                          .range([7, 47]);
-                   
+// Setup headings                  
                   d3.select("body")
                     .append("h1")
                     .text("P6: Make Effective Data Visualization");
@@ -99,50 +99,48 @@
                   d3.select("body")
                     .append("h2")
                     .text("Population Growth in 20 Most Populous Cities of the World from 1990 to 2014");
-
+// The svg element with options
                   var svg = d3.select("body")
                                 .append("svg")
                                 .attr("width", width + margin)
                                 .attr("height", height + margin);
-                                
+// Setup the projection                             
                   var projection = d3.geo.equirectangular()
                                          .scale(210)
                                          .translate([width/2, height/1.3])
-
-
+// Setup the path and the graticule
                   var path = d3.geo.path()
                                    .projection(projection);
 
                   var graticule = d3.geo.graticule();
-
-                    
+// Add continents                 
                   svg.append("g")
                      .attr("class", "land")
                      .selectAll("path")
                      .data([topojson.object(world, world.objects.land)])
                      .enter().append("path")
                      .attr("d", path);
-
+// Add boundaries
                   svg.append("g")
                      .attr("class", "boundary")
                      .selectAll("boundary")
                      .data([topojson.object(world, world.objects.countries)])
                      .enter().append("path")
                      .attr("d", path);
-
+// Add graticule lines
                   svg.append("g")
                      .attr("class", "graticule")
                      .selectAll("path")
                      .data(graticule.lines)
                      .enter().append("path")
                      .attr("d", path);
-
+// Create a function for the table 
                   function columns_table(data, columns) {
                     var table = d3.select("body").append("table"),
                         thead = table.append("thead"),
                         tbody = table.append("tbody");
 
-                    // Append the header row
+// Append the header row
                     thead.append("tr")
                          .selectAll("th")
                          .data(columns)
@@ -151,14 +149,12 @@
                          .text(function(column) {
                             return column;
                          });
-
-                    // Create a row for each object in the data
+// Create a row for each object in the data
                     var rows = tbody.selectAll("tr")
                                     .data(data)
                                     .enter()
                                     .append("tr");
-
-                    // Create a cell in each row for each column
+// Create a cell in each row for each column
                     var cells = rows.selectAll("td")
                                     .data(function(row) {
                                       return columns.map(function(column) {
@@ -171,9 +167,9 @@
 
                     return table;
                   };
-
+// Create the function for circles and a table with tsv data
                   function city_plot(data) {
-
+// Create circles with geoposition
                     var city = svg.selectAll("g.city")
                                   .data(data)
                                   .enter()
@@ -182,10 +178,11 @@
                                   .attr("transform", function(d) { 
                                     return "translate(" + projection([d.Longitude, d.Latitude]) + ")"; 
                                   });
-
+// Setup options for cicles
                     city.append("circle")
                         .attr("r", function(d) {return radius(d.Growth); })
                         .attr("fill", function(d) { return bubble_colors[d.Rank-1] })
+// Setup animation options
                         .on("mouseover", function() { 
                           d3.select(this).transition()
                                          .duration(200)
@@ -196,7 +193,7 @@
                                          .duration(200)
                                          .style("opacity",0.4);
                         });
-
+// Setup options for text
                     city.append("text")
                         .attr("x", 0)
                         .attr("y", 10)
@@ -205,6 +202,7 @@
                         .style("fill", "darkblue")
                         .style("text-decoration", "underline")
                         .text(function(d) { return d.Rank; })
+// Setup animation options
                         .on("mouseover", function() { 
                           d3.select(this).transition()
                                          .duration(200)
@@ -224,21 +222,20 @@
                                          .style("opacity", 0.8)
                                          .text(function(d) { return d.Rank; });
                         });
-
+// Add data into table 
                     var city_table = columns_table(data, ["Rank", "City"]);
 
-                    // Column headers
+// Column headers
                     city_table.selectAll("thead th")
                               .text(function(column) {
                                 return column.charAt(0).toUpperCase() + column.substr(1);
                               });
 
-
-                    // Sort by Rank
+// Sort by Rank
                     city_table.selectAll("tbody tr")
                               .sort(function(a, b) {return a.Rank - b.Rank;});
                     
-
+// Setup animation options
                     city_table.on("mouseover", function() { 
                                 d3.selectAll("table")
                                   .transition()
@@ -252,8 +249,7 @@
                                   .style("background-color", 'lightsteelblue');
                               });                                   
                   };
-
-                     
+// Read tsv and apply the function city_plot                
                   d3.tsv("huge_cities.tsv", city_plot);   
 
                 };
@@ -263,7 +259,7 @@
 
     <body>
         <script type="text/javascript">
-
+// Read json and apply the function draw
             d3.json("https://raw.githubusercontent.com/mbostock/topojson/master/examples/world-50m.json", draw);
             
         </script>

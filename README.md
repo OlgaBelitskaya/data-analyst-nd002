@@ -1,1 +1,0 @@
-# Data Analyst ND Projects
