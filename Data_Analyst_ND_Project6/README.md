@@ -1,15 +1,20 @@
 
 # Summary
 
-##### This visualization shows the growth of 20 most populous cities of the world from 1990 to 2014. The ordinal number reflects the population rating of the city, size of the circles and the text during animation - the amount of population growth in percent over the period.
+##### This visualization shows the growth of 20 most populous cities of the world from 1990 to 2014: the ordinal number reflects the population rating of the city, size of the circles and the text during animation - the amount of population growth in percent over the period.
 
-##### The purpose of this visualization is to show urbanization processes on the example of large cities, as well as a huge difference between them in the population growth. This result is obtained by a set of reasons that certainly is a very interesting subject for research.
+##### The purpose of this visualization is to show urbanization processes on the example of large cities, as well as a huge difference between them in the population growth: the cities of Japan and USA show relatively low growth, the cities of China certainly are leaders in growth rate.
+
+##### The unprecedented scale of China’s urban explosion is obtained by a set of reasons (economic liberalisation, development of the transport system, increase in the population in general, etc.) and, of course, a very interesting subject for research.
+
+##### If these trends continue, a possible scenario in the future: by 2030 Chinese cities will contain around a billion people — about 70% of China’s population and an eighth of humanity. ( http://www.economist.com/news/leaders/21601027-worlds-sake-and-its-own-china-needs-change-way-it-builds-and-runs-its)
 
 # Design
 
-##### Basic decisions of the map are made in shades of light blue, gray, dark blue and white colors. This allows us not to dissipate the user's attention with bright colors, but it makes the map very clearly defined.
+##### Basic decisions of the map are made in shades of light blue, gray, dark blue and white colors. This let us not to dissipate the user's attention with bright colors, but it makes the map very clearly defined. Text and graphics solutions in a single color scheme allow the visualization to be considered as a single information space.
 ##### For the circles, I picked up a collection of bright colors, because the pre-decided to make them as transparent as possible.
 ##### For the text I use the underscore to pay attention of users to the digital indicators.
+##### The use of animations significantly expanded the provided information and underlined the findings.
 
 # Feedback 
 
@@ -33,7 +38,23 @@
 ##### I added country codes and changed  the color of text in animation option (index18.html) .
 
 ### 4.
-##### Finally, I added the comments into the code lines because I received a note about this in the previous project (index_final.html) . 
+##### After that I added the comments into the code lines because I received a note about this in the previous project P4 and send P6 for the submission. 
+
+### 5.
+
+##### The next feedback was a review on the Udacity.com (https://review.udacity.com/#!/reviews/233328). It helps me improve my visualization (index19.html). 
+##### 1 ) I added a comment at the bottom of the page with an explanation of animation to improve interconnection with users: "For more information, move the cursor on the circles on the map or on the table at right".
+##### 2) I corrected the code: add ";" and " " for achieving a uniform style of the program.
+##### 3) I expanded the information that can be transmitted to the reader via animation tables. These tables together with the size of circles help to underline the main finding: the cities of China demonstrate the greatest rate of growth.
+
+### 6.
+##### The feedback on the forum ( https://discussions.udacity.com/t/dand-p6-feedback-on-data-visualization-d3/189115 ) was a comment about adding a link to the source and possible changing in the color scheme and text labels.
+##### 1) I added a link to the source of information.
+##### 2) I left the color scheme without any changes. As the author I want to see the result of the visualization in a single color gamma.
+##### 3) The adding of the long city names (with areas) makes the map overloaded by text information. That's why I created the table at right and didn't use this labels on the map.
+
+### 7.
+##### The final version - index_final.html.
 
 # Resources 
 
@@ -100,3 +121,8 @@ http://www.infoplease.com/ipa/A0762524.html
 
 http://www.citymayors.com/statistics/largest-cities-area-125.html
 
+
+
+```python
+
+```

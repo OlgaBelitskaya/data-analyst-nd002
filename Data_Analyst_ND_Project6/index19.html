@@ -26,7 +26,7 @@
                       color: darkblue;
                     }
 
-                    th {font-weight: bold; }
+                    th {font-weight: bold;}
                     
                     h1 {
                       color: darkblue; 
@@ -40,11 +40,11 @@
                     } 
 
                     h3 {
-                        color: darkblue; 
-                        font: bold 18px serif;
-                        position: absolute;
-                        top: 580px;
-                        left: 300px;
+                      color: darkblue; 
+                      font: bold 18px serif;
+                      position: absolute;
+                      top: 580px;
+                      left: 50px;
                     }
 
                     svg {
@@ -74,9 +74,9 @@
                     } 
 
                     circle { 
-                        stroke: darkblue;
-                        stroke-width: 1.5;
-                        opacity: 0.3;
+                      stroke: darkblue;
+                      stroke-width: 1.5;
+                      opacity: 0.3;
                     }   
                      
                 </style>
@@ -112,7 +112,7 @@
 
                   d3.select("body")
                     .append("h3")
-                    .text("For more information, move the cursor on the circles on the map or on the table at right");
+                    .text("For more information, move the cursor on the circles on the map or on the table at right.");
 
 // The svg element with options
                   var svg = d3.select("body")
@@ -246,8 +246,8 @@
                     var city_table = columns_table(data, ["Rank", "City"]);
 
                     var percent_table = columns_table(data, ["Growth", "Rank", 
-                                                             "Country_code", "Y_2014"]);  
-// Setup zero opacity for the tabel #2
+                                                             "Country", "Y_2014"]);  
+// Setup zero opacity for the table #2
                     percent_table.style("opacity", 0);                 
 // Column headers
                     city_table.selectAll("thead th")
