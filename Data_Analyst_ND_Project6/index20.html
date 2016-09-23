@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>P6: Make Effective Data Visualization</title>
+            <script src="http://d3js.org/d3.v3.js"></script>
+            <script src="http://d3js.org/topojson.v0.min.js"></script>
+            <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+                <style>
+/* Style of background */                  
+                    body {background-color: aliceblue;}
+/* Tables */
+                    table {
+                      background-color: lightsteelblue;
+                      opacity: 0.8;
+                      border-collapse: collapse;
+                      border: 1px blue solid;
+                      font: 11px sans-serif;
+                      position: absolute;
+                      top: 92px;
+                      left: 1032px;
+                    }
+                    td, th {
+                      border: 1px blue solid;
+                      padding: 5px;
+                      color: darkblue;
+                    }
+                    th {font-weight: bold;}
+/* Headings */                    
+                    h1 {
+                      color: darkblue; 
+                      font: bold 22px serif;
+                    }
+                    h2 {
+                      text-align: center; 
+                      color: royalblue; 
+                      font: bold italic 18px Georgia, serif;
+                    } 
+                    h3 {
+                      color: darkblue; 
+                      font: bold 18px serif;
+                      position: absolute;
+                      top: 580px;
+                      left: 50px;
+                    }
+                    h4 {
+                      color: darkblue; 
+                      font: bold 18px serif;
+                      position: absolute;
+                      top: 574px;
+                      left: 868px;
+                    }
+/* SVG options */
+                    svg {
+                      border: 1px solid blue;
+                      background-color: lightsteelblue;
+                      height: 80%;
+                    }
+/* Map style */
+                    .land { 
+                      fill: steelblue;
+                      stroke: silver;
+                    }
+
+                    .boundary { 
+                      fill: none;
+                      stroke: silver;
+                    }
+
+                    .graticule {
+                      fill: none;
+                      stroke: white;
+                      stroke-width: .3px;
+                    }
+
+                    .graticule :nth-child(2n) {
+                     stroke-dasharray: 2,2;
+                    } 
+
+/* Tooltips */
+                    .d3-tip {
+                      line-height: 1;
+                      padding: 4px;
+                      font: 11px sans-serif;
+                      background: darkblue;
+                      color: white;
+                      border-radius: 5px;
+                    }
+/* Triangls of tooltips */
+                    .d3-tip:after {
+                      box-sizing: border-box;
+                      display: inline;
+                      font-size: 10px;
+                      width: 100%;
+                      line-height: 1;
+                      color: silver;
+                      content: "\25BC";
+                      position: absolute;
+                      text-align: center;
+                    }
+/* Style northward tooltips differently */
+                    .d3-tip.n:after {
+                      margin: -1px 0 0 0;
+                      top: 100%;
+                      left: 0;
+                    }
+
+/* Circles */
+                    circle { 
+                      stroke: darkblue;
+                      stroke-width: 1.5;
+                      opacity: 0.3;
+                    }   
+                     
+                </style>
+            <script type="text/javascript">
+
+// Create the function for drawing the map 
+                function draw(world) {
+                  "use strict";
+
+// Setup width, height, margin                  
+                  var margin = {top: 40, right: 0, bottom: 20, left: 10},
+                      width = 1020 - margin.left - margin.right,
+                      height = 503 - margin.top - margin.bottom;
+// Colors for circles
+                  var bubble_colors = [
+                      'red', 'deeppink', 'darkorchid', 'indigo',
+                      'palegreen', 'limegreen', 'mediumturquoise', 'tomato',
+                      'brown', 'aquamarine', 'gold', 'chocolate',
+                      'purple', 'aqua', 'yellow', 'deepskyblue',
+                      'fuchsia', 'crimson', 'blue', 'forestgreen' 
+                    ];
+// The scale for the radius of circles
+                  var radius = d3.scale.linear()
+                                 .domain([9, 225])
+                                 .range([7, 47]);
+// Setup headings                  
+                  d3.select("body")
+                    .append("h1")
+                    .text("P6: Make Effective Data Visualization");
+
+                  d3.select("body")
+                    .append("h2")
+                    .text("Population Growth in 20 Most Populous Cities of the World from 1990 to 2014");
+
+                  d3.select("body")
+                    .append("h3")
+                    .text("For more information, move the cursor on the circles on the map or on the table at right. The data source: ");
+// Create a link 
+                  d3.select("body")
+                    .append("h4")
+                    .html("<a href='http://www.infoplease.com/ipa/A0762524.html'>infoplease.com</a>");
+
+// Setup options for tips
+                  var tip = d3.tip()
+                              .attr('class', 'd3-tip')
+                              .offset([-3, 0])
+                              .html(function(d) {
+                                  return "<span>" + d.Rank + ". " + d.City + ": " + d.Growth + "%" + "</span>";
+                              });
+
+// The SVG element with options
+                  var svg = d3.select("body")
+                              .append("svg")
+                              .attr("width", width + margin.left + margin.right)
+                              .attr("height", height + margin.top + margin.bottom);
+                 
+// Setup the projection                             
+                  var projection = d3.geo.equirectangular()
+                                     .scale(190)
+                                     .translate([width / 2, height / 1.5]);
+// Setup the path and the graticule
+                  var path = d3.geo.path().projection(projection);
+
+                  var graticule = d3.geo.graticule();
+// Add continents                 
+                  svg.append("g")
+                     .attr("class", "land")
+                     .selectAll("path")
+                     .data([topojson.object(world, world.objects.land)])
+                     .enter().append("path")
+                     .attr("d", path);
+// Add boundaries
+                  svg.append("g")
+                     .attr("class", "boundary")
+                     .selectAll("boundary")
+                     .data([topojson.object(world, world.objects.countries)])
+                     .enter().append("path")
+                     .attr("d", path);
+// Add graticule lines
+                  svg.append("g")
+                     .attr("class", "graticule")
+                     .selectAll("path")
+                     .data(graticule.lines)
+                     .enter().append("path")
+                     .attr("d", path);
+
+// Create a function for the table 
+                  function columns_table(data, columns) {
+                    var table = d3.select("body").append("table"),
+                        thead = table.append("thead"),
+                        tbody = table.append("tbody");
+// Append the header row
+                    thead.append("tr")
+                         .selectAll("th")
+                         .data(columns)
+                         .enter()
+                         .append("th")
+                         .text(function(column) {
+                            return column;
+                         });
+// Create a row for each object in the data
+                    var rows = tbody.selectAll("tr")
+                                    .data(data)
+                                    .enter()
+                                    .append("tr");
+// Create a cell in each row for each column
+                    var cells = rows.selectAll("td")
+                                    .data(function(row) {
+                                      return columns.map(function(column) {
+                                        return {column: column, value: row[column]};
+                                      });
+                                    })
+                                    .enter()
+                                    .append("td")
+                                    .text(function(d) { return d.value; });
+
+                    return table;
+                  };
+
+// Create the function for circles and a table with tsv data
+                  function city_plot(data) {
+
+// Create circles with geoposition
+                    var city = svg.selectAll("g.city")
+                                  .data(data)
+                                  .enter()
+                                  .append("g")
+                                  .attr("class", "city")
+                                  .attr("transform", function(d) { 
+                                    return "translate(" + projection([d.Longitude, d.Latitude]) + ")"; 
+                                  });
+// Setup options for cicles
+                    var circles = city.append("circle")
+                                      .attr("r", function(d) {return radius(d.Growth); })
+                                      .attr("fill", function(d) { return bubble_colors[d.Rank - 1] });
+// Call tips for cicles
+                    circles.call(tip);
+// Setup animation options
+                    circles.on('mouseover', function(d) {
+                              tip.show(d);
+                              d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .style("opacity", 0.8);
+                              })
+                           .on('mouseout', function(d) {
+                              tip.hide(d);
+                              d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .style("opacity", 0.3);
+                              });
+
+// Add data into tables 
+                    var city_table = columns_table(data, ["Rank", "City"]);
+
+                    var percent_table = columns_table(data, ["Growth", "Rank", 
+                                                             "Country", "Y_2014"]);  
+// Setup zero opacity for the table #2
+                    percent_table.style("opacity", 0);                 
+// Column headers
+                    city_table.selectAll("thead th")
+                              .text(function(column) {
+                                return column.charAt(0).toUpperCase() + column.substr(1);
+                              });
+
+                    percent_table.selectAll("thead th")
+                                 .text(function(column) { 
+                                  return column.charAt(0).toUpperCase() + column.substr(1);
+                                 });
+// Sort by Rank or by Growth
+                    city_table.selectAll("tbody tr")
+                              .sort(function(a, b) {return a.Rank - b.Rank;});
+
+                    percent_table.selectAll("tbody tr")
+                                 .sort(function(a, b) {return b.Growth - a.Growth;});                   
+// Setup animation options
+                    percent_table.on("mouseover", function() { 
+                                    d3.select(this)
+                                      .transition()
+                                      .duration(200)
+                                      .style("opacity", 1);
+                                 })
+                                 .on("mouseout", function() {
+                                    d3.select(this)
+                                      .transition()
+                                      .duration(200)
+                                      .style("opacity", 0);
+                                 });                                   
+                  };
+// Read tsv and apply the function city_plot                
+                  d3.tsv("huge_cities.tsv", city_plot);   
+
+                };
+
+            </script>
+    </head>
+
+    <body>
+        <script type="text/javascript">
+// Read json and apply the function draw
+            d3.json("https://raw.githubusercontent.com/mbostock/topojson/master/examples/world-50m.json", draw);
+            
+        </script>
+    </body>
+</html>
