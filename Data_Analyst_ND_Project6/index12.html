@@ -78,13 +78,13 @@
                                       .enter()
                                       .append("g")
                                       .attr("class", "city")
-                                      .attr("transform", function(d) { return "translate(" + projection([d.Longitude, d.Latitude]) + ")"; });
+                                      .attr("transform", function(d) { return "translate(" + projection([d.longitude, d.latitude]) + ")"; });
 
                         city.append("circle")
                             .attr("r", function(d) {
-                              return radius(d.Growth);
+                              return radius(d.growth);
                             })
-                            .attr("fill", function(d) { return bubble_colors[d.Rank] });
+                            .attr("fill", function(d) { return bubble_colors[d.rank] });
 
 
                         city.append("text")
@@ -96,7 +96,7 @@
                             .style("text-decoration", "underline")
                             .style("font-size", 15)
                             .style("opacity", 0.9)
-                            .text(function(d) { return d.Rank; });
+                            .text(function(d) { return d.rank; });
 
                     });
 

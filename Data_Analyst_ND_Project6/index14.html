@@ -175,12 +175,12 @@
                                   .append("g")
                                   .attr("class", "city")
                                   .attr("transform", function(d) { 
-                                    return "translate(" + projection([d.Longitude, d.Latitude]) + ")"; 
+                                    return "translate(" + projection([d.longitude, d.latitude]) + ")"; 
                                   });
 
                     city.append("circle")
-                        .attr("r", function(d) {return radius(d.Growth); })
-                        .attr("fill", function(d) { return bubble_colors[d.Rank-1] });
+                        .attr("r", function(d) {return radius(d.growth); })
+                        .attr("fill", function(d) { return bubble_colors[d.rank-1] });
 
 
                     city.append("text")
@@ -193,9 +193,9 @@
                         .style("font-size", 15)
                         .style("opacity", 0.9)
                         .style("font-weight", 900)
-                        .text(function(d) { return d.Rank; });
+                        .text(function(d) { return d.rank; });
 
-                    var city_table = columns_table(data, ["Rank", "City"]);
+                    var city_table = columns_table(data, ["rank", "city"]);
 
                     // Column headers
                     city_table.selectAll("thead th")
@@ -205,11 +205,10 @@
 
                     // Sort by Rank
                     city_table.selectAll("tbody tr")
-                              .sort(function(a, b) {return a.Rank - b.Rank;});
+                              .sort(function(a, b) {return a.rank - b.rank;});
                                                         
                   };
-
-                     
+                    
                   d3.tsv("huge_cities.tsv", city_plot);   
 
                     debugger;

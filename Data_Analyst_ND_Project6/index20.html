@@ -76,7 +76,6 @@
                     .graticule :nth-child(2n) {
                      stroke-dasharray: 2,2;
                     } 
-
 /* Tooltips */
                     .d3-tip {
                       line-height: 1;
@@ -132,9 +131,9 @@
                       'fuchsia', 'crimson', 'blue', 'forestgreen' 
                     ];
 // The scale for the radius of circles
-                  var radius = d3.scale.linear()
+                  var radius = d3.scale.sqrt()
                                  .domain([9, 225])
-                                 .range([7, 47]);
+                                 .range([7, 42]);
 // Setup headings                  
                   d3.select("body")
                     .append("h1")
@@ -157,7 +156,7 @@
                               .attr('class', 'd3-tip')
                               .offset([-3, 0])
                               .html(function(d) {
-                                  return "<span>" + d.Rank + ". " + d.City + ": " + d.Growth + "%" + "</span>";
+                                  return "<span>" + d.rank + ". " + d.city + ": " + d.growth + "%" + "</span>";
                               });
 
 // The SVG element with options
@@ -165,7 +164,7 @@
                               .append("svg")
                               .attr("width", width + margin.left + margin.right)
                               .attr("height", height + margin.top + margin.bottom);
-                 
+                
 // Setup the projection                             
                   var projection = d3.geo.equirectangular()
                                      .scale(190)
@@ -239,12 +238,12 @@
                                   .append("g")
                                   .attr("class", "city")
                                   .attr("transform", function(d) { 
-                                    return "translate(" + projection([d.Longitude, d.Latitude]) + ")"; 
+                                    return "translate(" + projection([d.longitude, d.latitude]) + ")"; 
                                   });
 // Setup options for cicles
                     var circles = city.append("circle")
-                                      .attr("r", function(d) {return radius(d.Growth); })
-                                      .attr("fill", function(d) { return bubble_colors[d.Rank - 1] });
+                                      .attr("r", function(d) {return radius(d.growth); })
+                                      .attr("fill", function(d) { return bubble_colors[d.rank - 1] });
 // Call tips for cicles
                     circles.call(tip);
 // Setup animation options
@@ -264,10 +263,10 @@
                               });
 
 // Add data into tables 
-                    var city_table = columns_table(data, ["Rank", "City"]);
+                    var city_table = columns_table(data, ["rank", "city"]);
 
-                    var percent_table = columns_table(data, ["Growth", "Rank", 
-                                                             "Country", "Y_2014"]);  
+                    var percent_table = columns_table(data, ["growth", "rank", 
+                                                             "country", "y_2014"]);  
 // Setup zero opacity for the table #2
                     percent_table.style("opacity", 0);                 
 // Column headers
@@ -282,10 +281,10 @@
                                  });
 // Sort by Rank or by Growth
                     city_table.selectAll("tbody tr")
-                              .sort(function(a, b) {return a.Rank - b.Rank;});
+                              .sort(function(a, b) {return a.rank - b.rank;});
 
                     percent_table.selectAll("tbody tr")
-                                 .sort(function(a, b) {return b.Growth - a.Growth;});                   
+                                 .sort(function(a, b) {return b.growth - a.growth;});                   
 // Setup animation options
                     percent_table.on("mouseover", function() { 
                                     d3.select(this)
@@ -302,7 +301,6 @@
                   };
 // Read tsv and apply the function city_plot                
                   d3.tsv("huge_cities.tsv", city_plot);   
-
                 };
 
             </script>
