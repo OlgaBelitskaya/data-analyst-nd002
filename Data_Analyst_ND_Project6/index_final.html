@@ -3,14 +3,15 @@
     <head>
         <meta charset="utf-8">
         <title>P6: Make Effective Data Visualization</title>
-            <script src="http://d3js.org/d3.v3.js"></script>
+            <script src="http://d3js.org/d3.v3.min.js"></script>
             <script src="http://d3js.org/topojson.v0.min.js"></script>
+            <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
                 <style>
-                   
+/* Style of background */                  
                     body {background-color: aliceblue;}
-
+/* Tables */
                     table {
-                      background-color: lightsteelblue;
+                      background-color: ghostwhite;
                       opacity: 0.8;
                       border-collapse: collapse;
                       border: 1px blue solid;
@@ -19,48 +20,47 @@
                       top: 92px;
                       left: 1032px;
                     }
-
                     td, th {
                       border: 1px blue solid;
                       padding: 5px;
-                      color: darkblue;
+                      color: black;
                     }
-
-                    th {font-weight: bold;}
-                    
+                    th {
+                      background-color: lightsteelblue;
+                      font-weight: bold;
+                      cursor: pointer;
+                    }
+/* Headings */                    
                     h1 {
-                      color: darkblue; 
+                      color: black; 
                       font: bold 22px serif;
                     }
-
                     h2 {
                       text-align: center; 
                       color: royalblue; 
                       font: bold italic 18px Georgia, serif;
                     } 
-
                     h3 {
-                      color: darkblue; 
+                      color: black; 
                       font: bold 18px serif;
                       position: absolute;
                       top: 580px;
                       left: 50px;
                     }
-
                     h4 {
-                      color: darkblue; 
+                      color: black; 
                       font: bold 18px serif;
                       position: absolute;
-                      top: 574px;
-                      left: 868px;
+                      top: 0px;
+                      left: 1000px;
                     }
-
+/* SVG options */
                     svg {
                       border: 1px solid blue;
                       background-color: lightsteelblue;
                       height: 80%;
                     }
-
+/* Map style */
                     .land { 
                       fill: steelblue;
                       stroke: silver;
@@ -73,7 +73,7 @@
 
                     .graticule {
                       fill: none;
-                      stroke: white;
+                      stroke: ghostwhite;
                       stroke-width: .3px;
                     }
 
@@ -81,34 +81,65 @@
                      stroke-dasharray: 2,2;
                     } 
 
+/* Tooltips */
+                    .d3-tip {
+                      line-height: 1;
+                      padding: 4px;
+                      font: 11px sans-serif;
+                      background: darkblue;
+                      color: white;
+                      border-radius: 5px;
+                    }
+/* Triangls of tooltips */
+                    .d3-tip:after {
+                      box-sizing: border-box;
+                      display: inline;
+                      font-size: 10px;
+                      width: 100%;
+                      line-height: 1;
+                      color: silver;
+                      content: "\25BC";
+                      position: absolute;
+                      text-align: center;
+                    }
+/* Style northward tooltips differently */
+                    .d3-tip.n:after {
+                      margin: -1px 0 0 0;
+                      top: 100%;
+                      left: 0;
+                    }
+
+/* Circles */
                     circle { 
                       stroke: darkblue;
                       stroke-width: 1.5;
-                      opacity: 0.3;
+                      opacity: 0.5;
                     }   
                      
                 </style>
-            <script type="text/javascript">
 
+            <script type="text/javascript">
+                
 // Create the function for drawing the map 
                 function draw(world) {
                   "use strict";
-// Setup width, height, margin
-                  var margin = 130,
-                      width = 1018 - margin,
-                      height = 503 - margin;
+
+// Setup width, height, margin                  
+                  var margin = {top: 40, right: 0, bottom: 20, left: 10},
+                      width = 1020 - margin.left - margin.right,
+                      height = 503 - margin.top - margin.bottom;
 // Colors for circles
                   var bubble_colors = [
-                      'red', 'deeppink', 'darkorchid', 'indigo',
-                      'palegreen', 'limegreen', 'mediumturquoise', 'tomato',
-                      'brown', 'aquamarine', 'gold', 'chocolate',
-                      'purple', 'aqua', 'yellow', 'deepskyblue',
-                      'fuchsia', 'crimson', 'blue', 'forestgreen' 
+                      'rgb(255,0,0)', 'rgb(255,20,147)', 'rgb(153,50,204)', 'rgb(75,0,130)',
+                      'rgb(152,251,152)', 'rgb(50,205,50)', 'rgb(72,209,204)', 'rgb(255,99,71)',
+                      'rgb(165,42,42)', 'rgb(127,255,212)', 'rgb(255,215,0)', 'rgb(210,105,30)',
+                      'rgb(128,0,128)', 'rgb(0,255,255)', 'rgb(255,255,0)', 'rgb(0,191,255)',
+                      'rgb(255,0,255)', 'rgb(220,20,60)', 'rgb(0,0,255)', 'rgb(34,139,34)' 
                     ];
 // The scale for the radius of circles
-                  var radius = d3.scale.linear()
+                  var radius = d3.scale.sqrt()
                                  .domain([9, 225])
-                                 .range([7, 47]);
+                                 .range([7, 42]);
 // Setup headings                  
                   d3.select("body")
                     .append("h1")
@@ -120,24 +151,32 @@
 
                   d3.select("body")
                     .append("h3")
-                    .text("For more information, move the cursor on the circles on the map or on the table at right. The data source: ");
+                    .text("For more information: move the cursor on the circles on the map or on the table at right, click on the column headers or on the link.");
 // Create a link 
                   d3.select("body")
                     .append("h4")
-                    .html("<a href='http://www.infoplease.com/ipa/A0762524.html'>infoplease.com</a>");
+                    .html("<a href='http://www.infoplease.com/ipa/A0762524.html'>The data source: infoplease.com</a>");
 
-// The svg element with options
+// Setup options for tips
+                  var tip = d3.tip()
+                              .attr('class', 'd3-tip')
+                              .offset([-3, 0])
+                              .html(function(d) {
+                                  return "<span>" + d.rank + ". " + d.city + ": " + d.growth + "%" + "</span>";
+                              });
+
+// The SVG element with options
                   var svg = d3.select("body")
                               .append("svg")
-                              .attr("width", width + margin)
-                              .attr("height", height + margin);
+                              .attr("width", width + margin.left + margin.right)
+                              .attr("height", height + margin.top + margin.bottom);
+                
 // Setup the projection                             
                   var projection = d3.geo.equirectangular()
-                                     .scale(205)
-                                     .translate([width / 2, height / 1.3]);
+                                     .scale(190)
+                                     .translate([width / 2, height / 1.5]);
 // Setup the path and the graticule
-                  var path = d3.geo.path()
-                               .projection(projection);
+                  var path = d3.geo.path().projection(projection);
 
                   var graticule = d3.geo.graticule();
 // Add continents                 
@@ -161,12 +200,12 @@
                      .data(graticule.lines)
                      .enter().append("path")
                      .attr("d", path);
+
 // Create a function for the table 
                   function columns_table(data, columns) {
                     var table = d3.select("body").append("table"),
                         thead = table.append("thead"),
                         tbody = table.append("tbody");
-
 // Append the header row
                     thead.append("tr")
                          .selectAll("th")
@@ -194,8 +233,10 @@
 
                     return table;
                   };
+
 // Create the function for circles and a table with tsv data
                   function city_plot(data) {
+
 // Create circles with geoposition
                     var city = svg.selectAll("g.city")
                                   .data(data)
@@ -203,62 +244,35 @@
                                   .append("g")
                                   .attr("class", "city")
                                   .attr("transform", function(d) { 
-                                    return "translate(" + projection([d.Longitude, d.Latitude]) + ")"; 
+                                    return "translate(" + projection([d.longitude, d.latitude]) + ")"; 
                                   });
 // Setup options for cicles
-                    city.append("circle")
-                        .attr("r", function(d) {return radius(d.Growth); })
-                        .attr("fill", function(d) { return bubble_colors[d.Rank - 1] })
+                    var circles = city.append("circle")
+                                      .attr("r", function(d) {return radius(d.growth); })
+                                      .attr("fill", function(d) { return bubble_colors[d.rank - 1] });
+// Call tips for cicles
+                    circles.call(tip);
 // Setup animation options
-                        .on("mouseover", function() { 
-                          d3.select(this)
-                            .transition()
-                            .duration(200)
-                            .style("opacity", 0.8);
-                        })
-                        .on("mouseout", function() {
-                          d3.select(this)
-                            .transition()
-                            .duration(200)
-                            .style("opacity", 0.3);
-                        });
-// Setup options for text
-                    city.append("text")
-                        .attr("x", 0)
-                        .attr("y", 8)
-                        .attr("transform", "translate(0,0) rotate(0)")
-                        .style("font-weight", 900)
-                        .style("fill", "darkblue")
-                        .style("opacity", 0.7)
-                        .style("text-decoration", "underline")
-                        .text(function(d) { return d.Rank; })
-// Setup animation options
-                        .on("mouseover", function() { 
-                          d3.select(this)
-                            .transition()
-                            .duration(200)
-                            .style("fill", "white")
-                            .style("font-size", 12)
-                            .style("opacity", 1)
-                            .text(function(d) { 
-                              return d.Growth + "%," + d.Country_code; 
-                            });
-                        })
-                        .on("mouseout", function() {
-                          d3.select(this)
-                            .transition()
-                            .duration(200)
-                            .style("opacity", 0.4)
-                            .style("fill", "darkblue")
-                            .style("font-size", 16)
-                            .style("opacity", 0.7)
-                            .text(function(d) { return d.Rank; });
-                        });
-// Add data into tables 
-                    var city_table = columns_table(data, ["Rank", "City"]);
+                    circles.on('mouseover', function(d) {
+                              tip.show(d);
+                              d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .style("opacity", 0.9);
+                              })
+                           .on('mouseout', function(d) {
+                              tip.hide(d);
+                              d3.select(this)
+                                .transition()
+                                .duration(200)
+                                .style("opacity", 0.5);
+                              });
 
-                    var percent_table = columns_table(data, ["Growth", "Rank", 
-                                                             "Country", "Y_2014"]);  
+// Add data into tables 
+                    var city_table = columns_table(data, ["rank", "city"]);
+
+                    var percent_table = columns_table(data, ["rank", "growth", 
+                                                             "y_2014", "country"]);  
 // Setup zero opacity for the table #2
                     percent_table.style("opacity", 0);                 
 // Column headers
@@ -271,12 +285,35 @@
                                  .text(function(column) { 
                                   return column.charAt(0).toUpperCase() + column.substr(1);
                                  });
-// Sort by Rank or by Growth
-                    city_table.selectAll("tbody tr")
-                              .sort(function(a, b) {return a.Rank - b.Rank;});
 
-                    percent_table.selectAll("tbody tr")
-                                 .sort(function(a, b) {return b.Growth - a.Growth;});                   
+// Sort by Rank for the table #1
+                    city_table.selectAll("tbody tr")
+                              .sort(function(a, b) {return a.rank - b.rank;});
+// Sort by click for the table #2
+                    var tr = percent_table.selectAll("tbody tr");
+                    tr.style("font-weight", "bold");
+                    var th = percent_table.selectAll("thead th");
+
+                    percent_table.selectAll("thead th")
+                                 .on("click", function(k, i) { 
+                                    for (i = 0; i < th[0].length; i++) {
+                                      if (th[0][i].__data__ === "country") {
+                                        percent_table.selectAll("tbody tr")
+                                                     .sort(function(a, b){return d3.ascending(a.country, b.country)});
+                                      } 
+                                    };
+                                    for (i = 0; i < th[0].length; i++) {
+                                      if (th[0][i].__data__ !== "country") {
+                                        percent_table.selectAll("tbody tr")
+                                                     .sort(function(a, b){return b[k] - a[k];});
+                                      }
+                                    };
+// Change the background color for the rows by click
+                                    var active   = th.active ? false : true ,
+                                        color_scheme = active ? function(d) {return bubble_colors[d.rank - 1]} : 'ghostwhite';
+                                    tr.style("background-color", color_scheme);
+                                    th.active = active;
+                                 });          
 // Setup animation options
                     percent_table.on("mouseover", function() { 
                                     d3.select(this)
@@ -288,7 +325,8 @@
                                     d3.select(this)
                                       .transition()
                                       .duration(200)
-                                      .style("opacity", 0);
+                                      .style("opacity", 0)
+                                      .style("background-color", "ghostwhite");
                                  });                                   
                   };
 // Read tsv and apply the function city_plot                

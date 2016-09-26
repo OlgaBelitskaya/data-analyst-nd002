@@ -3,18 +3,17 @@
 
 ##### This visualization shows the growth of 20 most populous cities of the world from 1990 to 2014: the ordinal number reflects the population rating of the city, size of the circles and the text during animation - the amount of population growth in percent over the period.
 
-##### The purpose of this visualization is to show urbanization processes on the example of large cities, as well as a huge difference between them in the population growth: the cities of Japan and USA show relatively low growth, the cities of China certainly are leaders in growth rate.
+##### The purpose of this visualization is to show urbanization processes on the example of large cities. The page allows to see the regions of the explosive growth of large cities (Asia and Africa), as well as the absence of a linear relationship for the growth rates from the initial size of the city during this period: the cities of Japan and USA show relatively low growth, the cities of China certainly are leaders in growth rate.
 
 ##### The unprecedented scale of China’s urban explosion is obtained by a set of reasons (economic liberalisation, development of the transport system, increase in the population in general, etc.) and, of course, a very interesting subject for research.
-
-##### If these trends continue, a possible scenario in the future: by 2030 Chinese cities will contain around a billion people — about 70% of China’s population and an eighth of humanity. ( http://www.economist.com/news/leaders/21601027-worlds-sake-and-its-own-china-needs-change-way-it-builds-and-runs-its)
 
 # Design
 
 ##### Basic decisions of the map are made in shades of light blue, gray, dark blue and white colors. This let us not to dissipate the user's attention with bright colors, but it makes the map very clearly defined. Text and graphics solutions in a single color scheme allow the visualization to be considered as a single information space.
 ##### For the circles, I picked up a collection of bright colors, because the pre-decided to make them as transparent as possible.
-##### For the text I use the underscore to pay attention of users to the digital indicators.
+##### For the additional text about every city I used the tooltips. It helps not to overflow the map by information.
 ##### The use of animations significantly expanded the provided information and underlined the findings.
+##### The sortable table N2 helps to research the data more deeply. The highlighting by colors for rows corresponds to the colors of circles on the map for each city.
 
 # Feedback 
 
@@ -48,12 +47,17 @@
 ##### 3) I expanded the information that can be transmitted to the reader via animation tables. These tables together with the size of circles help to underline the main finding: the cities of China demonstrate the greatest rate of growth.
 
 ### 6.
-##### The feedback on the forum ( https://discussions.udacity.com/t/dand-p6-feedback-on-data-visualization-d3/189115 ) was a comment about adding a link to the source and possible changing in the color scheme and text labels.
+##### The feedback on the forum ( https://discussions.udacity.com/t/dand-p6-feedback-on-data-visualization-d3/189115 ) were comments about adding a link to the source, increasing the dataset, correlation between the radius of circles and the growth rates and about possible changing in the color scheme and text labels.
 ##### 1) I added a link to the source of information.
-##### 2) I left the color scheme without any changes. As the author I want to see the result of the visualization in a single color gamma.
-##### 3) The adding of the long city names (with areas) makes the map overloaded by text information. That's why I created the table at right and didn't use this labels on the map.
+##### 2) I left the color scheme without any changes except the background color for the table. As the author I want to see the result of the visualization in a single color gamma.
+##### 3) I used d3.scale.sqrt() for correlation between the radius of circles  and the growth rates.
+##### 4) The adding of the long city names (with areas) makes the map overfull by text information. That's why I created the table at right and didn't use this labels on the map.
+##### (index20.html - index22.html)
 
 ### 7.
+##### Corrections after review №2 (https://review.udacity.com/#!/reviews/234593) were the followings:
+##### 1) creating tooltips with ranks, city names and growth rates;
+##### 2) adding the ability to sort the table №2 by values in the columns.
 ##### The final version - index_final.html.
 
 # Resources 
@@ -89,6 +93,17 @@ http://papaparse.com/
 http://api.highcharts.com/
 
 
+http://alignedleft.com/tutorials/d3/
+    
+http://mikemcdearmon.com/portfolio/techposts/charting-libraries-using-d3
+
+http://techslides.com/d3-world-maps-tooltips-zooming-and-queue
+
+http://mtaptich.github.io/d3-lessons/d3-extras/
+
+http://www.d3noob.org/2013/02/more-d3js-table-madness-sorting.html
+
+
 ##### Tools and fragments:
 
 1) From CSV to HTML table (Advanced):
@@ -114,6 +129,16 @@ http://www.w3schools.com/css/css_background.asp
 6) Multi-Series Line Chart:
 
 http://bl.ocks.org/mbostock/3884955
+
+7) Tooltips:
+
+https://github.com/Caged/d3-tip
+
+http://bl.ocks.org/d3noob/a22c42db65eb00d4e369
+
+8) Sortable Table with Bars:
+
+http://bl.ocks.org/mbostock/3719724
 
 ##### Data websites:
 
