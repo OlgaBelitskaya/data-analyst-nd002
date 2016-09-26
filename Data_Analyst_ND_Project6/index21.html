@@ -289,15 +289,21 @@
                     city_table.selectAll("tbody tr")
                               .sort(function(a, b) {return a.rank - b.rank;});
 // Sort by click for the table #2
-                    var tr = percent_table.selectAll("tbody tr");
-
+                    var th = percent_table.selectAll("thead th");
                     percent_table.selectAll("thead th")
-                                 .on("click", function() { 
-                                    tr.sort(function(a, b){return d3.ascending(a.country, b.country)});
-                                 }); 
-                    percent_table.selectAll("thead th")
-                                 .on("click", function(k) { 
-                                    tr.sort(function(a, b){return b[k] - a[k];});
+                                 .on("click", function(k, i) { 
+                                    for (i = 0; i < th[0].length; i++) {
+                                      if (th[0][i].__data__ === "country") {
+                                        percent_table.selectAll("tbody tr")
+                                                     .sort(function(a, b){return d3.ascending(a.country, b.country)});
+                                      } 
+                                    };
+                                    for (i = 0; i < th[0].length; i++) {
+                                      if (th[0][i].__data__ !== "country") {
+                                        percent_table.selectAll("tbody tr")
+                                                     .sort(function(a, b){return b[k] - a[k];});
+                                      }
+                                    };
                                  }); 
 
 debugger;                 
