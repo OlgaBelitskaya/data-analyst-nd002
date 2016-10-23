@@ -1,0 +1,16 @@
+(lp0
+S'poi'
+p1
+aS'coefficient_bonus_salary'
+p2
+aS'coefficient_from_poi_all'
+p3
+aS'coefficient_to_poi_all'
+p4
+aS'exercised_stock_options'
+p5
+aS'deferred_income'
+p6
+aS'shared_receipt_with_poi'
+p7
+a.
