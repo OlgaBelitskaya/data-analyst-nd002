@@ -1,0 +1,17 @@
+References
+
+Introduction to Machine Learning
+https://www.udacity.com/course/intro-to-machine-learning--ud120
+
+Documentation of scikit-learn 0.18
+http://scikit-learn.org/stable/documentation.html
+
+Machine Learning Mastery
+http://machinelearningmastery.com/start-here/
+
+Python Machine Learning
+By Sebastian Raschka
+https://www.packtpub.com/mapt/book/big_data_and_business_intelligence/9781783555130
+
+Scipy Lecture Notes
+http://www.scipy-lectures.org/

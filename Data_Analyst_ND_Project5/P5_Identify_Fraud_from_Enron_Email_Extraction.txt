@@ -1,0 +1,157 @@
+P5: Identify Fraud from Enron Email
+
+1. Resources
+
+1.1 The starter code
+https://github.com/udacity/ud120-projects.git
+1.2 The dataset for the project
+final_project_dataset.pkl
+1.3 Data description
+enron61702insiderpay.pdf
+1.4 The button for hiding or displaying code cells:
+https://jaycode.github.io/enron/identifying-fraud-from-enron-email.html
+
+2. Data
+
+2.1 The database description
+
+In 2000, Enron was one of the largest companies in the United States. By 2002, it had collapsed into bankruptcy due to widespread corporate fraud. In the resulting Federal investigation, a significant amount of typically confidential information entered into the public record, including tens of thousands of emails and detailed financial data for top executives. In this project, we will play detective, and put our new skills to use by building a person of interest identifier based on financial and email data made public as a result of the Enron scandal. To assist us in our detective work, the authors have combined this data with a hand-generated list of persons of interest in the fraud case, which means individuals who were indicted, reached a settlement or plea deal with the government, or testified in exchange for prosecution immunity.
+
+2.2 Characteristics
+
+The database has been loaded from the file "final_project_dataset.pkl".
+The lenght of the dataset:  146
+The first element in the dictionary:  METTS MARK
+The example of features in the dictionary:  {'salary': 365788, 'to_messages': 807, 'deferral_payments': 'NaN', 'total_payments': 1061827, 'exercised_stock_options': 'NaN', 'bonus': 600000, 'restricted_stock': 585062, 'shared_receipt_with_poi': 702, 'restricted_stock_deferred': 'NaN', 'total_stock_value': 585062, 'expenses': 94299, 'loan_advances': 'NaN', 'from_messages': 29, 'other': 1740, 'from_this_person_to_poi': 1, 'poi': False, 'director_fees': 'NaN', 'deferred_income': 'NaN', 'long_term_incentive': 'NaN', 'email_address': 'mark.metts@enron.com', 'from_poi_to_this_person': 38}
+The length of each element:  21
+Persons of interest: 18
+['HANNON KEVIN P', 'COLWELL WESLEY', 'RIEKER PAULA H', 'KOPPER MICHAEL J', 'SHELBY REX', 'DELAINEY DAVID W', 'LAY KENNETH L', 'BOWEN JR RAYMOND M', 'BELDEN TIMOTHY N', 'FASTOW ANDREW S', 'CALGER CHRISTOPHER F', 'RICE KENNETH D', 'SKILLING JEFFREY K', 'YEAGER F SCOTT', 'HIRKO JOSEPH', 'KOENIG MARK E', 'CAUSEY RICHARD A', 'GLISAN JR BEN F']
+
+2.3 Summary
+
+The dataset consists of 146 data points with 21 features. 18 records are labeled as persons of interest.
+
+2.4 The features in the data
+
+financial features: ['salary', 'deferral_payments', 'total_payments', 'loan_advances', 'bonus', 'restricted_stock_deferred', 'deferred_income', 'total_stock_value', 'expenses', 'exercised_stock_options', 'other', 'long_term_incentive', 'restricted_stock', 'director_fees'] (all units are in US dollars).
+email features: ['to_messages', 'email_address', 'from_poi_to_this_person', 'from_messages', 'from_this_person_to_poi', 'shared_receipt_with_poi'] (units are generally number of emails messages; notable exception is ‘email_address’, which is a text string).
+POI label: [‘poi’] (boolean, represented as integer).
+Definitions (financial features):
+(salary) Reflects items such as base salary, executive cash allowances, and benefits payments.
+(bonus) Reflects annual cash incentives paid based upon company performance. Also may include other retention payments.
+(long_term_incentive) Reflects long-term incentive cash payments from various long-term incentive programs designed to tie executive compensation to long-term success as measured against key performance drivers and business objectives over a multi-year period, generally 3 to 5 years​.
+(deferred_income) Reflects voluntary executive deferrals of salary, annual cash incentives, and long-term cash incentives as well as cash fees deferred by non-employee directors under a deferred compensation arrangement. May also reflect deferrals under a stock option or phantom stock unit in lieu of cash arrangement.
+(deferral_payments) Reflects distributions from a deferred compensation arrangement due to termination of employment or due to in-service withdrawals as per plan provisions.
+(loan_advances) Reflects total amount of loan advances, excluding repayments, provided by the Debtor in return for a promise of repayment. In certain instances, the terms of the promissory notes allow for the option to repay with stock of the company.
+(other) Reflects items such as payments for severance, consulting services, relocation costs, tax advances and allowances for employees on international assignment (i.e. housing allowances, cost of living allowances, payments under Enron’s Tax Equalization Program, etc.). May also include payments provided with respect to employment agreements, as well as imputed income amounts for such things as use of corporate aircraft.
+(expenses) Reflects reimbursements of business expenses. May include fees paid for consulting services.
+(director_fees) Reflects cash payments and/or value of stock grants made in lieu of cash payments to non-employee directors.
+(exercised_stock_options) Reflects amounts from exercised stock options which equal the market value in excess of the exercise price on the date the options were exercised either through cashless (same-day sale), stock swap or cash exercises. The reflected gain may differ from that realized by the insider due to fluctuations in the market price and the timing of any subsequent sale of the securities.
+(restricted_stock) Reflects the gross fair market value of shares and accrued dividends (and/or phantom units and dividend equivalents) on the date of release due to lapse of vesting periods, regardless of whether deferred.
+(restricted_stock_deferred) Reflects value of restricted stock voluntarily deferred prior to release under a deferred compensation arrangement.
+(total_stock_value) In 1998, 1999 and 2000, Debtor and non-debtor affiliates were charged for options granted. The Black-Scholes method was used to determine the amount to be charged. Any amounts charged to Debtor and non-debtor affiliates associated with the options exercised related to these three years have not been subtracted from the share value amounts shown.
+
+3. The work through the project
+
+3.1 Steps
+
+Reading the data and cleaning it.
+Exploring and understanding the input data.
+Analyzing how best to present the data to the algorithm.
+Choosing the right model and algorithm.
+Measuring the performance correctly.
+
+3.2 Data frame
+
+I would prefer to store and process data in two permissible for python language formats: as a dataframe and as a dictionary. So enron_df  dataframe was created from enron_data dictionary.
+
+3.3 Data cleaning
+
+This database contains indexes that hamper analysis: for example, a spreadsheet artifact 'TOTAL' or "NaN' values in the rows. The visualizing as a scatter plot can confirm it (see the full html version).
+'TOTAL' was not being used in the analysis and thus removed at all.
+
+Inside  two rows the wrong values were found and replaced by creating the artificial variable total check as a sum of other financial variables.
+It should be noted quite a high percentage of missing data in our case.
+
+Counting NaN values in the dataset.
+bonus : 64 NaN,  44.14 %
+deferral_payments : 108 NaN,  74.48 %
+deferred_income : 96 NaN,  66.21 %
+director_fees : 130 NaN,  89.66 %
+expenses : 49 NaN,  33.79 %
+exercised_stock_options : 45 NaN,  31.03 %
+loan_advances : 142 NaN,  97.93 %
+long_term_incentive : 80 NaN,  55.17 %
+other : 54 NaN,  37.24 %
+restricted_stock : 35 NaN,  24.14 %
+restricted_stock_deferred : 128 NaN,  88.28 %
+salary : 51 NaN,  35.17 %
+total_payments : 21 NaN,  14.48 %
+total_stock_value : 20 NaN,  13.79 %
+to_messages : 59 NaN,  40.69 %
+email_address : 34 NaN,  23.45 %
+from_poi_to_this_person : 59 NaN,  40.69 %
+from_messages : 59 NaN,  40.69 %
+from_this_person_to_poi : 59 NaN,  40.69 %
+shared_receipt_with_poi : 59 NaN,  40.69 %
+
+The datasets with 'NaN' are incompatible with program estimators. They assume that all values are numerical. A basic strategy to use these datasets is to discard entire rows and/or columns containing missing values. But in our case this can be a reason of losing data which may be valuable (even though incomplete). A better strategy is to impute the missing values. For example, a basic strategy for imputing missing values, either using the mean, the median or the most frequent value of the row or column in which the missing values are located.
+In order to improve the accuracy of predictions, I applied not only the filling in missing values of variables but also the scaling.
+
+3.4 CSV files
+
+One of the most convenient formats for storage and interpretation files using a variety of programming languages is csv format. I save the data in this format for subsequent processing.
+
+3.5 Feature selection
+
+We always think of models as simplified theoretical approximations of the reality. As such there is some inferiority involved, also called the approximation error. Before fitting the complex models we can try to research dependencies between variables as a part of understanding our dataset.
+
+To evaluate the existing relationships I have used mathematical methods and graphical representation.
+
+A very small number of strong dependencies between variables is observed. It means we should use a lot of features for building a prediction model or construct some new.
+
+After numerous experiments with the existing functions I have designed the three new:
+1) coefficient_bonus_salary_ratio: bonus compared to salary;
+2) coefficient_from_poi_all: messages from poi to this person compared to all messages received by this person;
+3) coefficient_to_poi_all: messages from this person to poi compared to all messages sent by this person.
+3.6 Algorithm selection
+
+For experiments with mathematical prediction I applied different algorithms-classifiers of the software package scikit-learn.
+
+The highest result for the financial and mixed sets of features was shown by the KNeighborsClassifier():
+1) ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income', 'from_poi_to_this_person', 'from_this_person_to_poi', 'shared_receipt_with_poi'] - 89.186% accuracy;
+2) ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income'] - 88.293% accuracy.
+
+The highest result for the email set of features was shown by the LogisticRegression(C=0.8):
+['poi', 'from_messages', 'from_this_person_to_poi', 'shared_receipt_with_poi'] - 87.322% accuracy.
+
+The highest result for the created features was shown by the DecisionTreeClassifier(max_depth=1):
+
+ ['poi', 'coefficient_bonus_salary', 'coefficient_from_poi_all', 'coefficient_to_poi_all', 'exercised_stock_options', 'deferred_income', 'shared_receipt_with_poi'] - 88.013% accuracy.
+3.7 Evaluation
+
+The evaluation terminology:
+accuracy = number of people that are correctly predicted as POI or non-POI / number of all people in the dataset
+recall = number of people that are predicted as POI and they are actually POI / number of people are actually POI
+precision = number of people that are predicted as POI and they are actually POI / number of people that are predicted as POI
+
+Among all the sets of features and algorithms there is a really valuable finding - DecisionTreeClassifier(max_depth=1) and ['poi', 'coefficient_bonus_salary', 'coefficient_from_poi_all', 'coefficient_to_poi_all', 'exercised_stock_options', 'deferred_income', 'shared_receipt_with_poi'].
+A combination of these options gives us a high level of accuracy (88.013%) and precision (90.400%).
+It has a great practical meaning: with a lot of confidence we can see that it’s very likely for a marked person to be a real POI and not a false alarm. This allows to speed the search process, to narrow down the suspects and to protect innocent people from suspicion.
+
+In the project we can see the result that many people will recognize as better than selected by me KNeighborsClassifier() and ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income', 'from_poi_to_this_person', 'from_this_person_to_poi', 'shared_receipt_with_poi'] with following indicators: accuracy - 89.186%, precision - 81.806%, recall: 31.250%.
+
+
+4. Conclusion (Enron Submission Free-Response Questions)
+
+To evaluate the project the authors were asked to answer a series of questions. The full list of questions and answers can be seen in the Enron_Submission_Free_Response_Questions.txt.
+
+5. Addition
+
+To run a large number of experiments, I divided the start codes for the project in tester.py and in poi_id.py to fragments with functions. For the convenience of the project review, I did not make the individual code files. To start running this project and check all the results, the reader needs only the data file final_project_dataset.pkl and this notebook.
+After this research I consider my project as a very basic study of the data: I feel that it is necessary to perform dozens of times more experiments to improve understanding of the relationship.
+The database is chosen for these experiments remarkably:
+1) it corresponds to real events;
+2) the available information allows us to estimate the effectiveness of the used methods;
+3) the described situation is standard for this type of events and therefore found good solutions may be used in many other cases;
+4) a lot of material for other studies (not only the identification of persons of interests).
