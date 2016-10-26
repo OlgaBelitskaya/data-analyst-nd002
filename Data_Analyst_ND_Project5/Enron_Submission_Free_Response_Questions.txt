@@ -5,45 +5,92 @@ Summarize for us the goal of this project and how machine learning is useful in 
 
 The goal of this project is constructing a predictive model for identifying persons of interest using many feature sets and different types of classifiers. The base for this model is the dataset with real events.
 During the research incorrect values and outliers were found. Invalid values were corrected. High values associated with the generalization of data were removed, the rest outliers were remained in the database in order to avoid the loss of valuable information.
+
 Detailed description of the database is presented in Section 2, the studying and the graphical representation of the data (including invalid values and outliers) are presented in Section 3.3.
 
 2.
 What features did you end up using in your POI identifier, and what selection process did you use to pick them? Did you have to do any scaling? Why or why not? As part of the assignment, you should attempt to engineer your own feature that does not come ready-made in the dataset -- explain what feature you tried to make, and the rationale behind it. (You do not necessarily have to use it in the final analysis, only engineer and test it.) In your feature selection step, if you used an algorithm like a decision tree, please also give the feature importances of the features that you use, and if you used an automated feature selection function like SelectKBest, please report the feature scores and reasons for your choice of parameter values. [relevant rubric items: “create new features”, “properly scale features”, “intelligently select feature”]
 
 I was not reading about real persons in this dataset at all. For me it was another interesting experiment, can I detect POI only with the datapoints or not. So I observed only dependencies between variables and their values and picked features by weak dependencies and suspect large values.
-Feature scaling is not a mandatory option for prediction models. The main reasons for applying it: 1) the range of values of raw data varies is really wide in our case and in several machine learning algorithms will not work properly without normalization; 2) gradient descent converges much faster with feature scaling than without it.
+
+Selection of features for investigation seemed quite obvious:
+1) indicators of salaries and bonuses - the basic data when considering the payments to staff, they are required to include both as they demonstrate quite a weak proportionality;
+2) all quantitative indicators of correspondence with persons of interest are required for including;
+3) including 'exercised_stock_options', 'deferred_income' almost always led to an increase in all indicators of the accuracy of the predictions, so I added them in the final version too.
+
+When thinking over the construction of features I decided that the ratio of these values can give even more information about the suspicious trends than the variables themselves.
+
+Significant impact of introducing new variables on the algorithm DecisionTreeClassifier(max_depth=1)was confirmed by experiments.
+Accuracy: 0.86673	Precision: 0.50119	Recall: 0.10550	F1: 0.17431	F2: 0.12528 - the set with old features.
+Accuracy: 0.89327	Precision: 0.91476	Recall: 0.22000	F1: 0.35470	F2: 0.25940 - the set with new features.
+
+Feature scaling is not a mandatory option for prediction models. The main reasons for applying it:
+1) the range of values of raw data varies is really wide in our case and in several machine learning algorithms will not work properly without normalization; 
+2) gradient descent converges much faster with feature scaling than without it.
+
+Standardizing and imputing values of variables tends to make the training process better behaved by improving the numerical condition. Family of algorithms that is most likely to be scale-invariant are tree-based methods.
+Scaling matters in the cases of k-nearest neighbors with an Euclidean distance measure, k-means, logistic regression, SVM, linear discriminant analysis, PCA, etc.
+We can see it in the case of KMeans(n_clusters=2) and ['poi','from_messages', 'from_this_person_to_poi', 'shared_receipt_with_poi'].
+Without  scaling:
+Accuracy: 0.75711	Precision: 0.10832	Recall: 0.16400	F1: 0.13047	F2: 0.14871
+With scaling:
+Accuracy: 0.72560	Precision: 0.15959	Recall: 0.24800	F1: 0.19421	F2: 0.22326
+
+Scaling of cases should be approached with caution because it discards information.
+We can see it in the case of KNeighborsClassifier() and ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income', 'from_poi_to_this_person', 'from_this_person_to_poi', 'shared_receipt_with_poi'].
+Without scaling:
+Accuracy: 0.89186	Precision: 0.81806	Recall: 0.31250	F1: 0.45224	F2: 0.35657
+With scaling:
+Accuracy: 0.85253	Precision: 0.00467	Recall: 0.00050	F1: 0.00090	F2: 0.00061
+
 Presented variables allowed to make a fairly accurate prediction (accuracy about 89%) without creating new variables and scaling. But the process of scaling and the introduction of new variables - the ratio between most important data parameters - have led to high performance in another area (precision).
-The process of scaling and the creation of new variables is described and illustrated in Sections 3.3 and 3.5.
+
+The process of scaling and the creation of new variables is described and illustrated in Sections 3.3.6-3.3.9 and 3.5.5, 3.5.6, 3.5.8. 
 
 3.
 What algorithm did you end up using? What other one(s) did you try? How did model performance differ between algorithms? [relevant rubric item: “pick an algorithm”]
 
 During the work I tried to use more than 10 different algorithms, in the final version of the project I left only 8 from them to examine empirically the impact of the type of the algorithm and its parameters on the quality of predictions.
-The experimental results for all algorithms are presented in Section 3.5. For the project, I selected only the information about the experiments with high accuracy. The results of experiments on other parameters (precision, recall, f2) varies widely.
-DecisionTreeClassifier(max_depth=1) for the feature set ['poi', 'coefficient_bonus_salary', 'coefficient_from_poi_all', 'coefficient_to_poi_all', 'exercised_stock_options', 'deferred_income', 'shared_receipt_with_poi'] is the final version of all experiments.
+
+The experimental results for all algorithms are presented in Section 3.5. For the project, I selected only the information about the experiments with high accuracy and precision trying to improve the level of recall. The results of experiments on all parameters (precision, recall, f1, f2) varies widely.
+
+KNeighborsClassifier() and ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income', 'from_poi_to_this_person', 'from_this_person_to_poi', 'shared_receipt_with_poi'] is the final version of all experiments.
+
+It should be noted that the algorithm GaussianNB() gives good results in the most of cases.
 
 4.
 What does it mean to tune the parameters of an algorithm, and what can happen if you don’t do this well? How did you tune the parameters of your particular algorithm? (Some algorithms do not have parameters that you need to tune -- if this is the case for the one you picked, identify and briefly explain how you would have done it for the model that was not your final choice or a different model that does utilize parameter tuning, e.g. a decision tree classifier). [relevant rubric item: “tune the algorithm”]
 
 Models can have many parameters and the goal for the algorithm tuning is finding the best combination of these indicators.
+
 Tuning an algorithm is extremely important because different settings can have a profound effect on its performance.
-The section 3.5.6 "Experiments with the highest accuracy" shows very clearly the influence of the classifier parameters on the final result.
+
+The section 3.5.7 "Experiments with the highest accuracy and influence the parameters of the algorithms" shows very clearly how the classifier parameters can modify the final result.
 
 5.
 What is validation, and what’s a classic mistake you can make if you do it wrong? How did you validate your analysis? [relevant rubric item: “validation strategy”]
 
 Validation is a technique for checking how our model generalizes with the remaining part of the dataset. The common mistake in this case is overfitting where the model performed well on training set but have substantial lower result on test set.
 In this project we have the great start code with very useful function for validation - test_classifier(). I did not change it at all.
+
 The parameter "folds" in this function is equal 1000 and it means the model runs 1000 times with different test sets based on the original data. StratifiedSuffleSplit was applied for splitting in this case.
 
 6.
 Give at least 2 evaluation metrics and your average performance for each of them. Explain an interpretation of your metrics that says something human-understandable about your algorithm’s performance. [relevant rubric item: “usage of evaluation metrics”]
 
 Definition:
+
 accuracy = number of people that are correctly predicted as POI or non-POI / number of all people in the dataset
+
 recall = number of people that are predicted as POI and they are actually POI / number of people are actually POI
+
 precision = number of people that are predicted as POI and they are actually POI / number of people that are predicted as POI
-In the final algoritm these metrics have the values: accuracy = 88.013%, precision = 90.400%, recall = 11.300%.
-In practice it means I am confident in general in my predictions by 88.013%, the POI persons that were predicted in this model with confidence by 90.400% are really POI and the level of confidence that predicted POI person are all POI persons is 11.300%.
+
+In the final algoritm these metrics have the values: accuracy = 89.186%, precision = 81.806%, recall = 31.250%.
+
+In practice it means I am confident in general in my predictions by 89.186%, the POI persons that were predicted in this model with confidence by 81.806% are really POI and the level of confidence that predicted POI person are all POI persons is 31.250%.
+
 It's my personal choice because from my point of view it's better to be confident in the precision.
-In the project we can see the result that many people will recognize as better than selected by me KNeighborsClassifier() and ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income', 'from_poi_to_this_person', 'from_this_person_to_poi', 'shared_receipt_with_poi'] with following indicators: accuracy - 89.186%, precision - 81.806%, recall: 31.250%.
+
+In the project we can see the result that many people will recognize as very perspective for researching
+DecisionTreeClassifier(max_depth=1): ['poi', 'coefficient_bonus_salary', 'coefficient_income_total', 'coefficient_from_poi_all', 'coefficient_to_poi_all', 'exercised_stock_options'] - 89.327% accuracy, 91.476% precision, 22.000% recall.

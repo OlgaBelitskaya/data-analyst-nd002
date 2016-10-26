@@ -21,7 +21,6 @@ In 2000, Enron was one of the largest companies in the United States. By 2002, i
 
 The database has been loaded from the file "final_project_dataset.pkl".
 The lenght of the dataset:  146
-The first element in the dictionary:  METTS MARK
 The example of features in the dictionary:  {'salary': 365788, 'to_messages': 807, 'deferral_payments': 'NaN', 'total_payments': 1061827, 'exercised_stock_options': 'NaN', 'bonus': 600000, 'restricted_stock': 585062, 'shared_receipt_with_poi': 702, 'restricted_stock_deferred': 'NaN', 'total_stock_value': 585062, 'expenses': 94299, 'loan_advances': 'NaN', 'from_messages': 29, 'other': 1740, 'from_this_person_to_poi': 1, 'poi': False, 'director_fees': 'NaN', 'deferred_income': 'NaN', 'long_term_incentive': 'NaN', 'email_address': 'mark.metts@enron.com', 'from_poi_to_this_person': 38}
 The length of each element:  21
 Persons of interest: 18
@@ -39,7 +38,7 @@ POI label: [‘poi’] (boolean, represented as integer).
 Definitions (financial features):
 (salary) Reflects items such as base salary, executive cash allowances, and benefits payments.
 (bonus) Reflects annual cash incentives paid based upon company performance. Also may include other retention payments.
-(long_term_incentive) Reflects long-term incentive cash payments from various long-term incentive programs designed to tie executive compensation to long-term success as measured against key performance drivers and business objectives over a multi-year period, generally 3 to 5 years​.
+(long_term_incentive) Reflects long-term incentive cash payments from various long-term incentive programs designed to tie executive compensation to long-term success as measured against key performance drivers and business objectives over a multi-year period, generally 3 to 5 years.
 (deferred_income) Reflects voluntary executive deferrals of salary, annual cash incentives, and long-term cash incentives as well as cash fees deferred by non-employee directors under a deferred compensation arrangement. May also reflect deferrals under a stock option or phantom stock unit in lieu of cash arrangement.
 (deferral_payments) Reflects distributions from a deferred compensation arrangement due to termination of employment or due to in-service withdrawals as per plan provisions.
 (loan_advances) Reflects total amount of loan advances, excluding repayments, provided by the Debtor in return for a promise of repayment. In certain instances, the terms of the promissory notes allow for the option to repay with stock of the company.
@@ -108,26 +107,54 @@ We always think of models as simplified theoretical approximations of the realit
 
 To evaluate the existing relationships I have used mathematical methods and graphical representation.
 
-A very small number of strong dependencies between variables is observed. It means we should use a lot of features for building a prediction model or construct some new.
+A very small number of strong dependencies between variables is observed. It means we should use a wide list of features for building a prediction model or construct some new.
 
-After numerous experiments with the existing functions I have designed the three new:
+Selection of features for investigation seemed quite obvious: 
+1) indicators of salaries and bonuses - the basic data when considering the payments to staff, they are required to include both as they demonstrate quite a weak proportionality; 
+2) all quantitative indicators of correspondence with persons of interest are required for including; 
+3) including 'exercised_stock_options', 'deferred_income' almost always led to an increase in all indicators of the accuracy of the predictions, so I added them in the final version too.
+
+After numerous experiments with the existing functions I have designed the new ones:
 1) coefficient_bonus_salary_ratio: bonus compared to salary;
 2) coefficient_from_poi_all: messages from poi to this person compared to all messages received by this person;
-3) coefficient_to_poi_all: messages from this person to poi compared to all messages sent by this person.
+3) coefficient_to_poi_all: messages from this person to poi and shared with poi compared to all messages sent by this person;
+4) coefficient_income_total: deferred income for this person compared to all total payments for this person.
+
+Significant impact of introducing new variables on the algorithm DecisionTreeClassifier(max_depth=1)was confirmed by experiments. 
+Accuracy: 0.86673 Precision: 0.50119 Recall: 0.10550 F1: 0.17431 F2: 0.12528 - the set with old features. 
+Accuracy: 0.89327 Precision: 0.91476 Recall: 0.22000 F1: 0.35470 F2: 0.25940 - the set with new features.
+
+Feature scaling is not a mandatory option for prediction models. The main reasons for applying it: 
+1) the range of values of raw data varies is really wide in our case and in several machine learning algorithms will not work properly without normalization; 
+2) gradient descent converges much faster with feature scaling than without it.
+
+Standardizing and imputing values of variables tends to make the training process better behaved by improving the numerical condition. Family of algorithms that is most likely to be scale-invariant are tree-based methods. Scaling matters in the cases of k-nearest neighbors with an Euclidean distance measure, k-means, logistic regression, SVM, linear discriminant analysis, PCA, etc. 
+We can see it in the case of KMeans(n_clusters=2) and ['poi','from_messages', 'from_this_person_to_poi', 'shared_receipt_with_poi']. 
+Without scaling: 
+Accuracy: 0.75711 Precision: 0.10832 Recall: 0.16400 F1: 0.13047 F2: 0.14871 
+With scaling: 
+Accuracy: 0.72560 Precision: 0.15959 Recall: 0.24800 F1: 0.19421 F2: 0.22326
+
+Scaling of cases should be approached with caution because it discards information. 
+We can see it in the case of KNeighborsClassifier() and ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income', 'from_poi_to_this_person', 'from_this_person_to_poi', 'shared_receipt_with_poi']. 
+Without scaling: 
+Accuracy: 0.89186 Precision: 0.81806 Recall: 0.31250 F1: 0.45224 F2: 0.35657 
+With scaling: 
+Accuracy: 0.85253 Precision: 0.00467 Recall: 0.00050 F1: 0.00090 F2: 0.00061
+
+Presented variables allowed to make a fairly accurate prediction (accuracy about 89%) without creating new variables and scaling. But the process of scaling and the introduction of new variables - the ratio between most important data parameters - have led to high performance in another area (precision).
+
 3.6 Algorithm selection
 
-For experiments with mathematical prediction I applied different algorithms-classifiers of the software package scikit-learn.
+The highest result for the financial and mixed sets of features was shown bythe KNeighborsClassifier() without imputing mean values instead of 'NaN' and without scaling the features:
+1) ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income', 'from_poi_to_this_person', 'from_this_person_to_poi', 'shared_receipt_with_poi'] - 89.186% accuracy, 81.806% precision, 31.250% recall;
+2) ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income'] - 88.293% accuracy, 78.361% precision, 30.600% recall.
 
-The highest result for the financial and mixed sets of features was shown by the KNeighborsClassifier():
-1) ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income', 'from_poi_to_this_person', 'from_this_person_to_poi', 'shared_receipt_with_poi'] - 89.186% accuracy;
-2) ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income'] - 88.293% accuracy.
+The highest result for the email set of features was shown by the LogisticRegression(C=100):
+['poi', 'from_messages', 'from_this_person_to_poi', 'shared_receipt_with_poi'] - 86.556% accuracy, 36.000% precision, 27.000% recall.
 
-The highest result for the email set of features was shown by the LogisticRegression(C=0.8):
-['poi', 'from_messages', 'from_this_person_to_poi', 'shared_receipt_with_poi'] - 87.322% accuracy.
-
-The highest result for the created features was shown by the DecisionTreeClassifier(max_depth=1):
-
- ['poi', 'coefficient_bonus_salary', 'coefficient_from_poi_all', 'coefficient_to_poi_all', 'exercised_stock_options', 'deferred_income', 'shared_receipt_with_poi'] - 88.013% accuracy.
+The highest result for the created features was shown by the DecisionTreeClassifier(max_depth=1): ['poi', 'coefficient_bonus_salary', 'coefficient_income_total', 'coefficient_from_poi_all', 'coefficient_to_poi_all', 'exercised_stock_options'] - 89.327% accuracy, 91.476% precision, 22.000% recall.
+ 
 3.7 Evaluation
 
 The evaluation terminology:
@@ -135,12 +162,11 @@ accuracy = number of people that are correctly predicted as POI or non-POI / num
 recall = number of people that are predicted as POI and they are actually POI / number of people are actually POI
 precision = number of people that are predicted as POI and they are actually POI / number of people that are predicted as POI
 
-Among all the sets of features and algorithms there is a really valuable finding - DecisionTreeClassifier(max_depth=1) and ['poi', 'coefficient_bonus_salary', 'coefficient_from_poi_all', 'coefficient_to_poi_all', 'exercised_stock_options', 'deferred_income', 'shared_receipt_with_poi'].
-A combination of these options gives us a high level of accuracy (88.013%) and precision (90.400%).
+Among all the sets of features and algorithms there is a really valuable find - KNeighborsClassifier() and ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income', 'from_poi_to_this_person', 'from_this_person_to_poi', 'shared_receipt_with_poi'].
+A combination of these options gives us a high level of accuracy (89.186%) and precision (81.806%) and a normal level of recall (31.250%)
 It has a great practical meaning: with a lot of confidence we can see that it’s very likely for a marked person to be a real POI and not a false alarm. This allows to speed the search process, to narrow down the suspects and to protect innocent people from suspicion.
 
-In the project we can see the result that many people will recognize as better than selected by me KNeighborsClassifier() and ['poi', 'salary', 'bonus', 'exercised_stock_options', 'deferred_income', 'from_poi_to_this_person', 'from_this_person_to_poi', 'shared_receipt_with_poi'] with following indicators: accuracy - 89.186%, precision - 81.806%, recall: 31.250%.
-
+In the project we can see the result that many people will recognize as very perspective for researching DecisionTreeClassifier(max_depth=1): ['poi', 'coefficient_bonus_salary', 'coefficient_income_total', 'coefficient_from_poi_all', 'coefficient_to_poi_all', 'exercised_stock_options'] - 89.327% accuracy, 91.476% precision, 22.000% recall.
 
 4. Conclusion (Enron Submission Free-Response Questions)
 
