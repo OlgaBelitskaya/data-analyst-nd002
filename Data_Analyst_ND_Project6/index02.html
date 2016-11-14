@@ -8,37 +8,30 @@
   <script src="http://datamaps.github.io/scripts/datamaps.world.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/numeral.js/1.4.5/numeral.min.js"></script>
 
-  <div id="container" style="position: fixed; top: 50; left: 50; width: 1200px; height: 610px; border: 1px solid #73AD21;"></div>
+  <div id="container" style="position: fixed; top: 50; left: 50; width: 1300px; height: 710px; border: 2px solid steelblue;"></div>
 
   <style>
-
     body {background-color: aliceblue;}
-
     h1 {color: darkblue; 
         font: 24px sans-serif;
         font-weight: bold;}
-
-    h2 {text-align: center; color: royalblue; 
-        font: 18px sans-serif; font-weight: bold;} 
-
+    h2 {color: darkblue; 
+        font: 24px sans-serif; 
+        font-weight: bold;} 
   </style>
   <script type="text/javascript">  
     d3.select("body")
       .append("h1")
       .text("P6: Make Effective Data Visualization");
-
     d3.select("body")
       .append("h2")
       .text("Population Growth in 20 Most Populous Cities of the World from 1990 to 2014");
-
   </script>
 </head>
 
 <body>
   <script type="text/javascript">
-
     var colors = d3.scale.category20c();
-
     var bubble_colors = [
       'red', 'deeppink', 'darkorchid', 'royalblue',
       'limegreen', 'crimson', 'mediumturquoise', 'tomato',
@@ -46,7 +39,9 @@
       'purple', 'aqua', 'coral', 'chartreuse',
       'fuchsia', 'yellogreen'    
     ];
- 
+    
+    var radius = d3.scale.sqrt().domain([9, 225]).range([7, 42]);    
+    
     var map = new Datamap({
       element: document.getElementById('container'),
       fills: {
@@ -76,28 +71,27 @@
       }
   
     });
-
     map.bubbles([
-      {name: 'Tokyo', latitude: 35.6895, longitude: 139.6917, radius: 16.30/4, fillKey: 'JPN'},
+      {name: 'Tokyo', latitude: 35.6895, longitude: 139.6917, radius: radius(16.30), fillKey: 'JPN'},
       {name: 'Delhi', latitude: 28.7041, longitude: 77.1025, radius: 156.56/4, fillKey: 'IND'},
-      {name: 'Shanghai', latitude: 31.2304, longitude: 121.4737, radius: 193.89/4, fillKey: 'CHN'},
-      {name: 'Mexico City', latitude: 23.6345, longitude: -102.5528, radius: 33.25/4, fillKey: 'MEX'},
-      {name: 'São Paulo', latitude: -23.5505, longitude: -46.6333, radius: 40.98/4, fillKey: 'BRA'},
-      {name: 'Mumbai', latitude: 19.076, longitude: 72.8777, radius: 66.78/4, fillKey: 'IND'},
-      {name: 'Osaka', latitude: 34.6937, longitude: 135.5022, radius: 9.43/4, fillKey: 'JPN'}, 
-      {name: 'Beijing', latitude: 39.9042, longitude: 116.4074, radius: 187.57/4, fillKey: 'CHN'},
-      {name: 'New York/Newark', latitude: 40.7128, longitude: -74.0059, radius: 15.57/4, fillKey: 'USA'},
-      {name: 'Cairo', latitude: 30.0444, longitude: 31.2357, radius: 86.20/4, fillKey: 'EGY'},
-      {name: 'Dhaka', latitude: 23.8103, longitude: 90.4125, radius: 156.49/4, fillKey: 'BGD'},
-      {name: 'Karachi', latitude: 24.8615, longitude: 67.0099, radius: 125.63/4, fillKey: 'PAK'},
-      {name: 'Buenos Aires', latitude: -34.6037, longitude: -58.3816, radius: 42.91/4, fillKey: 'ARG'},
-      {name: 'Calcutta', latitude: 22.5726, longitude: 88.3639, radius: 35.59/4, fillKey: 'IND'},
-      {name: 'Istanbul', latitude: 41.0082, longitude: 28.9784, radius: 113.95/4, fillKey: 'TUR'},
-      {name: 'Chongqing', latitude: 29.5630, longitude: 106.5515, radius: 222.01/4, fillKey: 'CHN'},
-      {name: 'Rio de Janeiro', latitude: -22.9068, longitude: -43.1729, radius: 32.26/4, fillKey: 'BRA'},
-      {name: 'Manila', latitude: 14.5995, longitude: 120.9842, radius: 60.09/4, fillKey: 'PHL'},
-      {name: 'Lagos', latitude: 6.5244, longitude: 3.3792, radius: 164.78/4, fillKey: 'NGA'},
-      {name: 'Los Angeles/Long Beach/Santa Ana', latitude: 34.0522, longitude: -118.2437, radius: 13.09/4, fillKey: 'USA'}
+      {name: 'Shanghai', latitude: 31.2304, longitude: 121.4737, radius: radius(193.89), fillKey: 'CHN'},
+      {name: 'Mexico City', latitude: 23.6345, longitude: -102.5528, radius: radius(33.25), fillKey: 'MEX'},
+      {name: 'São Paulo', latitude: -23.5505, longitude: -46.6333, radius: radius(40.98), fillKey: 'BRA'},
+      {name: 'Mumbai', latitude: 19.076, longitude: 72.8777, radius: radius(66.78), fillKey: 'IND'},
+      {name: 'Osaka', latitude: 34.6937, longitude: 135.5022, radius: radius(9.43), fillKey: 'JPN'}, 
+      {name: 'Beijing', latitude: 39.9042, longitude: 116.4074, radius: radius(187.57), fillKey: 'CHN'},
+      {name: 'New York/Newark', latitude: 40.7128, longitude: -74.0059, radius: radius(15.57), fillKey: 'USA'},
+      {name: 'Cairo', latitude: 30.0444, longitude: 31.2357, radius: radius(86.20), fillKey: 'EGY'},
+      {name: 'Dhaka', latitude: 23.8103, longitude: 90.4125, radius: radius(156.49), fillKey: 'BGD'},
+      {name: 'Karachi', latitude: 24.8615, longitude: 67.0099, radius: radius(125.63), fillKey: 'PAK'},
+      {name: 'Buenos Aires', latitude: -34.6037, longitude: -58.3816, radius: radius(42.91), fillKey: 'ARG'},
+      {name: 'Calcutta', latitude: 22.5726, longitude: 88.3639, radius: radius(35.59), fillKey: 'IND'},
+      {name: 'Istanbul', latitude: 41.0082, longitude: 28.9784, radius: radius(113.95), fillKey: 'TUR'},
+      {name: 'Chongqing', latitude: 29.5630, longitude: 106.5515, radius: radius(222.01), fillKey: 'CHN'},
+      {name: 'Rio de Janeiro', latitude: -22.9068, longitude: -43.1729, radius: radius(32.26), fillKey: 'BRA'},
+      {name: 'Manila', latitude: 14.5995, longitude: 120.9842, radius: radius(60.09), fillKey: 'PHL'},
+      {name: 'Lagos', latitude: 6.5244, longitude: 3.3792, radius: radius(164.78), fillKey: 'NGA'},
+      {name: 'Los Angeles/Long Beach/Santa Ana', latitude: 34.0522, longitude: -118.2437, radius: radius(13.09), fillKey: 'USA'}
       ], {
       popupTemplate: function(geo, data) { 
         return "<div class='hoverinfo'>" + data.name + " - " + numeral(data.radius*4).format('0.00') + "%";
@@ -120,11 +114,8 @@
         PAK: colors(Math.random() * 120),
         MEX: colors(Math.random() * 130)
       });
-
  //     map.labels({labelColor: 'darkgreen', fontSize: 20, lineWidth: 2});
     }, 2000);
-
-
   </script>
 </body>
 </html>
