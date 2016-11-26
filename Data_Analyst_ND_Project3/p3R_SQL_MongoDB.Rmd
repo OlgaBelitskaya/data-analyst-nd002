@@ -1,0 +1,423 @@
+---
+title: "P3: OpenStreetMap Data Case Study"
+author: "Olga Belitskaya"
+date: "2016-11-26"
+output: html_notebook
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(plotly)
+library(ggplot2)
+library(ggmap)
+library(formattable)
+library(osmar)
+library(RColorBrewer)
+library(RSQLite)
+library(sqldf)
+library(mongolite)
+library(jsonlite)
+```
+### 1. Map Area
+
+#### 1.1. The map
+I have chosed the map sector of the dynamically developing area in the UAE.
+For displaying the area I have used the package "ggmap" and the coordinates of this area in dubai_abu-dhabi.osm.
+```{r fig.width=10, fig.height=10, warning=FALSE, message=FALSE}
+dubai_gmap <- get_map(location=c(lon = 55.2708, lat = 25.2048), 
+                      source = "google", maptype = "hybrid", zoom = 8)
+ggmap(dubai_gmap, extent = "normal")
+```
+```{r fig.width=6, fig.height=6, warning=FALSE, message=FALSE}
+osmmap <- get_map(location = c(53.5800,23.7350,56.8870,26.5390), source = "osm")
+ggmap(osmmap, extent = "normal")
+```
+#### bounds: minlat="23.7350" minlon="53.5800" maxlat="26.5390" maxlon="56.8870"
+
+The reader can see some examples of use the ggmap package besides just displaying the maps.
+```{r message=FALSE}
+gc01 <- geocode("Jumerah Gardens", output = "more")
+formattable(data.frame(gc01))
+```
+```{r message=FALSE}
+gc03 <- geocode("Dubai International Airport", output = "more")
+formattable(data.frame(gc03))
+```
+```{r message=FALSE}
+formattable(data.frame(mapdist("dubai", "abu-dhabi")))
+```
+```{r message=FALSE}
+formattable(data.frame(mapdist("Jumerah Gardens", "Dubai International Airport")))
+```
+```{r message=FALSE}
+var_ways <- route('The Dubai Moll', 'Business Bay', alternatives = TRUE)
+formattable(head(data.frame(var_ways)))
+```
+```{r fig.width=6, fig.height=6, message=FALSE}
+ggplot(data = var_ways) + coord_map() +
+  geom_leg(aes(x = startLon, xend = endLon, y = startLat, yend = endLat, color = route))
+```
+```{r fig.width=10, fig.height=6, warning=FALSE, message=FALSE}
+qmap(location=c(55.2820, 25.1900), zoom = 15, maptype = 'roadmap', 
+     base_layer = ggplot(aes(x = startLon, y = startLat), data = var_ways)) +
+  geom_leg(aes(x = startLon, xend = endLon, 
+               y = startLat, yend = endLat, color = route), 
+           alpha = 0.5, size = 2, data = var_ways) +
+  labs(x = 'Longitude', y = 'Latitude', colour = 'Route') +
+  facet_wrap(~ route, ncol = 3) + theme(legend.position = 'top')
+```
+```{r fig.width=10, fig.height=10, warning=FALSE, message=FALSE}
+way_map <- get_map(location = c(55.2820, 25.1900), 
+                   source = "google", zoom = 15, maptype = "hybrid")
+ggmap(way_map) + geom_leg(data = var_ways, 
+                          aes(x = startLon, xend = endLon, 
+                              y = startLat, yend = endLat, color = route), 
+                          alpha = 0.7, size = 2)
+```
+#### 1.2 Extract with osmar R
+There are several ways to extract geodata. One of them is to do this with this R code cells.
+
+This set of commands allows us to upload the data using the coordinates.
+```{r}
+src <- osmsource_api()
+bigbox <- center_bbox(55.2708, 25.2048, 6000, 6000)
+bdubai <- get_osm(bigbox, source = src)
+```
+```{r}
+str(bdubai)
+```
+Node tags:
+```{r}
+node_tags <- sort(unique(bdubai$nodes$tags$k))
+print(node_tags)
+```
+Way tags:
+```{r}
+way_tags <- sort(unique(bdubai$ways$tags$k))
+print(way_tags)
+```
+Users:
+```{r}
+users <- sort(unique(bdubai$nodes$attrs$user))
+print(head(users, 12))
+```
+#### 1.3 Plotting with osmar R
+```{r fig.width=9, fig.height=9, warning=FALSE, message=FALSE}
+plot(bdubai)
+```
+```{r}
+ts <- find(bdubai, node(tags(v == "traffic_signals")))
+ts_dubai <- subset(bdubai, node_ids = ts)
+bs <- find(bdubai, node(tags(v %agrep% "busstop")))
+bs_dubai <- subset(bdubai, node_ids = bs)
+hw <- find(bdubai, way(tags(k == "highway")))
+hw <- find_down(bdubai, way(hw))
+hw_dubai <- subset(bdubai, ids = hw)
+tu <- find(bdubai, way(tags(k == "tunnel")))
+tu <- find_down(bdubai, way(tu))
+tu_dubai <- subset(bdubai, ids = tu)
+```
+```{r fig.width=9, fig.height=9, warning=FALSE, message=FALSE}
+plot_ways(hw_dubai, col = "steelblue")
+plot_ways(tu_dubai, add = TRUE, col = "magenta")
+plot_nodes(ts_dubai, add = TRUE, col = "red")
+plot_nodes(bs_dubai, add = TRUE, col = "blue")
+```
+```{r}
+bg <- find(bdubai, way(tags(k == "building")))
+bg <- find_down(bdubai, way(bg))
+bg_dubai <- subset(bdubai, ids = bg)
+bg_poly <- as_sp(bg_dubai, "polygons")
+```
+```{r fig.width=9, fig.height=9, warning=FALSE, message=FALSE}
+spplot(bg_poly, col.regions=brewer.pal(12, "Set3"), c("version"))
+```
+```{r}
+# bus <- find(bdubai, relation(tags(v == "bus")))
+# bus_dubai <- lapply(bus, function(i) { as_sp(get_osm(relation(i), full = TRUE), "lines") })
+bs_points <- as_sp(bs_dubai, "points")
+hw_line <- as_sp(hw_dubai, "lines")
+```
+```{r fig.width=9, fig.height=9, warning=FALSE, message=FALSE}
+# for ( i in seq(along = bus_dubai) ) { plot(bus[[i]], add = TRUE, col = "blue") }
+plot(bg_poly, col = "lightsteelblue")
+plot(hw_line, add = TRUE, col = "blue")
+plot(bs_points, add = TRUE, col = "red")
+```
+#### 1.4. Extract from OpenStreetMaps.org. 
+Another possible way is extracting data files in many different formats from the website:
+https://mapzen.com/data/metro-extracts/metro/dubai_abu-dhabi/ .
+The files dubai_abu-dhabi.osm, dubai_abu-dhabi_buildings.geojson, etc. were downloaded.
+The data from the format osm of the file were extracted in formats csv and json using specially designed functions in the programming language python.
+
+Size of the downloaded osm, json and csv file.
+```{r}
+print(file.size("/Users/olgabelitskaya/large-repo/dubai_abu-dhabi.osm"))
+print(file.size("/Users/olgabelitskaya/large-repo/dubai_abu-dhabi.osm.json"))
+```
+```{r}
+print(file.size("/Users/olgabelitskaya/large-repo/nodes.csv"))
+print(file.size("/Users/olgabelitskaya/large-repo/nodes_tags.csv"))
+print(file.size("/Users/olgabelitskaya/large-repo/ways.csv"))
+print(file.size("/Users/olgabelitskaya/large-repo/ways_tags.csv"))
+print(file.size("/Users/olgabelitskaya/large-repo/ways_nodes.csv"))
+```
+### 2. CSV & SQL
+The displayed lines of code represent the process of recording information of the CSV files to the SQL database.
+```{r}
+sqlite <- dbDriver("SQLite")
+dubai_abu_dhabi <- dbConnect(sqlite,"dubai_abu_dhabi.sqlite3")
+```
+
+```{r}
+nodes <- read.csv('/Users/olgabelitskaya/large-repo/nodes.csv')
+nodes_tags <- read.csv('/Users/olgabelitskaya/large-repo/nodes_tags.csv')
+ways <- read.csv('/Users/olgabelitskaya/large-repo/ways.csv')
+ways_tags <- read.csv('/Users/olgabelitskaya/large-repo/ways_tags.csv')
+ways_nodes <- read.csv('/Users/olgabelitskaya/large-repo/ways_nodes.csv')
+```
+
+```{r}
+dbWriteTable(conn = dubai_abu_dhabi, name = 'nodes', value = nodes, row.names = FALSE)
+dbWriteTable(conn = dubai_abu_dhabi, name = 'nodes_tags', value = nodes_tags, row.names = FALSE)
+dbWriteTable(conn = dubai_abu_dhabi, name = 'ways', value = ways, row.names = FALSE)
+dbWriteTable(conn = dubai_abu_dhabi, name = 'ways_tags', value = ways_tags, row.names = FALSE)
+dbWriteTable(conn = dubai_abu_dhabi, name = 'ways_nodes', value = ways_nodes, row.names = FALSE)
+```
+With the help of simple manipulations in the database, the user can perform a selection of interesting information. 
+
+The examples of nodes and ways:
+```{r message=FALSE}
+formattable(sqldf("select * from nodes limit 3", dbname = "dubai_abu_dhabi"))
+```
+```{r message=FALSE}
+formattable(sqldf("select * from ways limit 3", dbname = "dubai_abu_dhabi"))
+```
+We can find the number of nodes and ways as well.
+```{r message=FALSE}
+formattable(sqldf("SELECT COUNT(*) FROM nodes;"))
+```
+```{r message=FALSE}
+formattable(sqldf("SELECT COUNT(*) FROM ways;"))
+```
+The number of users:
+```{r message=FALSE}
+formattable(sqldf("SELECT COUNT(DISTINCT(e.uid)) FROM \
+          (SELECT uid FROM nodes UNION ALL SELECT uid FROM ways) e;"))
+```
+The database allows to evaluate the contribution of each individual user in map editing.
+
+Let us list the three most active editors of this map section:
+```{r}
+formattable(sqldf("SELECT e.user, COUNT(*) as num \
+           FROM (SELECT user FROM nodes UNION ALL SELECT user FROM ways) e \
+           GROUP BY e.user \
+           ORDER BY num DESC \
+           LIMIT 3;"))
+```
+A list of the 3 most common types of places:
+```{r}
+formattable(sqldf("SELECT value, COUNT(*) as num \
+            FROM nodes_tags \
+            WHERE key='place' \
+            GROUP BY value \
+            ORDER BY num DESC \
+            LIMIT 3;"))
+```
+A list of the 10 most common types of buildings:
+```{r}
+formattable(sqldf("SELECT value, COUNT(*) as num \
+            FROM nodes_tags \
+            WHERE key='building' \
+            GROUP BY value \
+            ORDER BY num DESC \
+            LIMIT 10;"))
+```
+A list of the 20 most common streets:
+```{r}
+formattable(sqldf("SELECT value, COUNT(*) as num \
+            FROM nodes_tags \
+           WHERE key='street' \
+           GROUP BY value \
+           ORDER BY num DESC \
+           LIMIT 20;"))
+```
+```{r}
+dbDisconnect(dubai_abu_dhabi)
+```
+### 3. JSON & MongoDB
+With very similar manipulations we can import the data from JSON files into MongoDB.
+
+Start with running 'mongod' from the terminal, end with 'Ctrl+C'.
+```{r}
+m <- mongo("openstreetmap", verbose = FALSE)
+```
+```{r}
+# stream_in(file("dubai_abu-dhabi.osm.json"), handler = function(df){m$insert(df)})
+```
+The number of documents:
+```{r}
+m$count()
+```
+The three most active editors of this map section:
+```{r}
+top_users <- m$aggregate('[
+{ "$group" : { "_id" : "$created.user", "count" : { "$sum" : 1} } }, 
+{ "$sort" : { "count" : -1} }, { "$limit" : 3 } 
+]')
+formattable(top_users)
+```
+The number of users with one note and the list of 10 users with only one note:
+```{r}
+number_oonu <- m$aggregate('[
+{ "$group" : { "_id" : "$created.user", "count" : { "$sum" : 1} } }, 
+{ "$sort" : { "count" : 1} }, { "$limit" : 10 } 
+]')
+formattable(number_oonu)
+```
+```{r}
+ten_oonu <- m$aggregate('[
+{ "$group" : { "_id" : "$created.user", "count" : { "$sum" : 1} } }, 
+{ "$sort" : { "count" : 1} }, { "$limit" : 10 } 
+]')
+formattable(ten_oonu)
+```
+A list of 3 most common places:
+```{r}
+places <- m$aggregate('[
+{ "$match" : { "address.place" : { "$exists" : 1} } }, 
+{ "$group" : { "_id" : "$address.place", "count" : { "$sum" : 1} } },  
+{ "$sort" : { "count" : -1}}, {"$limit":3}
+]')
+formattable(places)
+```
+A list of 10 most common types of buildings:
+```{r}
+buildings <- m$aggregate('[
+{ "$match": { "building": { "$exists": 1}}}, 
+{ "$group": { "_id": "$building", "count": { "$sum": 1}}}, 
+{ "$sort": { "count": -1}}, {"$limit": 10}
+]')
+formattable(buildings)
+```
+A list of 10 most common facilities:
+```{r}
+facilities <- m$aggregate('[
+{ "$match": { "amenity": { "$exists": 1}}}, 
+{ "$group": { "_id": "$amenity", "count": { "$sum": 1}}},
+{ "$sort": { "count": -1}}, { "$limit": 10}
+]')
+formattable(facilities)
+```
+A list of 3 most common zipcodes:
+```{r}
+postcodes <- m$aggregate('[ 
+{ "$match" : { "address.postcode" : { "$exists" : 1} } }, 
+{ "$group" : { "_id" : "$address.postcode", "count" : { "$sum" : 1} } },  
+{ "$sort" : { "count" : -1}}, {"$limit": 3}
+]')
+formattable(postcodes)
+```
+Counting zipcodes with one document:
+```{r}
+postcodes_od <- m$aggregate('[ 
+{ "$group" : {"_id" : "$address.postcode", "count" : { "$sum" : 1} } },
+{ "$group" : {"_id" : "$count", "count": { "$sum" : 1} } },
+{ "$sort" : {"_id" : 1} }, { "$limit" : 1} 
+]')
+formattable(postcodes_od)
+```
+Examples of statistics indicators for this dataset:
+```{r}
+m$info()$stats$ns
+```
+```{r}
+m$info()$stats$size
+```
+```{r}
+m$info()$stats$avgObjSize
+```
+```{r}
+m$info()$stats$storageSize
+```
+
+### 4. Problems and errors
+
+#### 4.1 
+One of the main problems of public maps - no duplication of all place names in other languages. If it were possible to automate the translation process by increasing a common database of map names in many languages, it would save users from many difficulties and mistakes.
+
+#### 4.2
+The next problem - the presence of a large number of databases (including mapping) on the same map objects. Some intergraph procedures of already available data would relieve a lot of people from unnecessary work, save time and effort.
+
+#### 4.3
+Obviously, the information about the number of buildings and their purpose is incomplete. Completeness of public maps can be increased by bringing in the process of mapping new users. For this goal enter the information should be as simple as possible: for example, a choice of the available options with automatic filling many fields for linked options (for example, linking the name of the street and the administrative area in which it is located).
+
+#### 4.4 
+There are a number of mistakes and typos as in every public data. For correction them well-known methods can be proposed: automatic comparison with existing data and verification for new data by other users.
+
+#### 4.5
+The lack of a uniform postal code system in this concrete dataset complicates their identification and verification.
+
+### 5. Data Overview
+
+#### 5.1 Description of the data structure: 
+1) nodes -  points in space with basic characteristics (lat, long, id, tags);
+
+2) ways - defining linear features and area boundaries (an ordered list of nodes);
+
+3) relations - tags and also an ordered list of nodes, ways and/or relations as members which is used to define logical or geographic relationships between other elements.
+
+#### 5.2 Indicators.
+1) Size of the .osm file: 394,4 MB.
+2) Size of the .osm sample file : 3,9 MB.
+3) Nodes: 1890178.
+4) Ways: 234327.
+5) Relations: 2820.
+6) Tags: 503027.
+7) Users: 1895.
+
+#### 5.3 SQL & MongoDB
+With the help of a specific set of commands we can perform a statistical description of the data collections and the database.
+
+### 6. Conclusion
+I think this project is educational for me. I believe that one of the main tasks in this case was to study the methods of extraction and researching of map data in open access. For example, I used a systematic sample of elements from the original .osm file for trying functions of processing before applying them to the whole dataset. As a result I have some new useful skills in parsing, processing, storing, aggregating and applying the data.
+
+In the research I have read through quite a lot of projects of other students on this topic. After my own research and review the results of other authors I have formed a definite opinion about the ideas in OpenStreetMap.
+
+This website can be viewed as a testing ground of interaction of a large number of people (ncluding non-professionals) to create a unified information space. The prospects of such cooperation can not be overemphasized. The success of the project will allow to implement the ambitious plans in the field of available information technologies, the creation of virtual reality and many other areas.
+
+Increasing of the number of users leads to many positive effects in this kind of projects:
+
+1) a rapid improvement in the accuracy, completeness and timeliness of information;
+
+2) approximation of the information space to the reality , the objectivity of the data evaluation;
+
+3) reduce the effort for data cleansing on erroneous details.
+
+Ideas for improving the project OpenStreetMap are simple and natural.
+
+Increasing the number of users can be achieved by additional options like marks of the rating evaluation (eg, the best restaurant or the most convenient parking).
+
+The popularity of the project may be more due to the temporary pop-up messages of users (placement is not more than 1-3 hours) with actual information about the geographic location (eg, the presence of traffic jams).
+
+### 7. Useful links
+
+https://wiki.openstreetmap.org/wiki/OSM_XML
+https://www.datacamp.com/community/tutorials/r-data-import-tutorial#gs.jUE2UHw
+http://www2.uaem.mx/r-mirror/web/packages/osmar/osmar.pdf
+https://www.researchgate.net/publication/274740645_Harnessing_open_street_map_data_with_R_and_QGIS
+https://cran.r-project.org/web/packages/mongolite/vignettes/intro.html
+https://journal.r-project.org/archive/2013-1/eugster-schlesinger.pdf
+http://www.joyofdata.de/blog/mongodb-state-of-the-r-rmongodb/
+https://edzer.github.io/sp/
+https://cran.r-project.org/web/packages/ggmap/ggmap.pdf
+https://media.readthedocs.org/pdf/jupyter-notebook/latest/jupyter-notebook.pdf
+https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf
+https://www.r-bloggers.com/r-and-mongodb/
+https://cran.r-project.org/web/packages/mongolite/mongolite.pdf
+https://www.r-bloggers.com/r-and-sqlite-part-1/
+https://www.datacamp.com/community/tutorials/importing-data-r-part-two#gs._PEI6iY
+https://cran.r-project.org/web/packages/rio/vignettes/rio.html
+http://flovv.github.io/Gas_price-Mapping/
+
+
+
