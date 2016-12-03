@@ -16,6 +16,9 @@ library(RSQLite)
 library(sqldf)
 library(mongolite)
 library(jsonlite)
+library(osmplotr)
+library(geojsonio)
+library(leaflet)
 ```
 ### 1. Map Area
 
@@ -143,7 +146,34 @@ plot(bg_poly, col = "lightsteelblue")
 plot(hw_line, add = TRUE, col = "blue")
 plot(bs_points, add = TRUE, col = "red")
 ```
-#### 1.4. Extract from OpenStreetMaps.org. 
+#### 1.4. Osmplotr.
+```{r warning=FALSE, message=FALSE}
+dad_box <- get_bbox(c(55.4008, 25.3048, 55.5008, 25.5048))
+dad_buildings <- extract_osm_objects(key='building', bbox=dad_box)
+dad_highways <- extract_osm_objects(key='highway', bbox=dad_box)
+
+dad_map <- osm_basemap(bbox = dad_box, bg = 'lightsteelblue')
+dad_map <- add_osm_objects(dad_map, dad_buildings, col = 'steelblue')
+dad_map <- add_osm_objects(dad_map, dad_highways, col = 'blue')
+```
+```{r fig.width=9, fig.height=9, warning=FALSE, message=FALSE}
+print_osm_map(dad_map)
+```
+```{r fig.width=9, fig.height=9, warning=FALSE, message=FALSE}
+
+```
+#### 1.5. Geojson & leaflet.
+```{r fig.width=9, fig.height=9, warning=FALSE, message=FALSE}
+buildings_dad <- readLines("/Users/olgabelitskaya/large-repo/dubai_abu-dhabi.imposm-geojson/dubai_abu-dhabi_buildings.geojson") %>% paste(collapse = "\n")
+
+leaflet() %>% setView(lng = 55.2708, lat = 25.2048, zoom = 11) %>%
+  addTiles() %>%
+  addGeoJSON(buildings_dad, weight = 1, color = "steelblue", fill = FALSE)
+```
+```{r fig.width=9, fig.height=9, warning=FALSE, message=FALSE}
+
+```
+#### 1.6. Extract from OpenStreetMaps.org. 
 Another possible way is extracting data files in many different formats from the website:
 https://mapzen.com/data/metro-extracts/metro/dubai_abu-dhabi/ .
 The files dubai_abu-dhabi.osm, dubai_abu-dhabi_buildings.geojson, etc. were downloaded.
@@ -356,6 +386,12 @@ There are a number of mistakes and typos as in every public data. For correction
 
 #### 4.5
 The lack of a uniform postal code system in this concrete dataset complicates their identification and verification.
+
+#### 4.6
+During working on the project, I spent a lot of time on the conversion of one type of data file to another. Each format has its own advantages and disadvantages. Probably, it is possible to design a universal file type that allows us to store data of any kind, combining the advantages of all existing types and applicable in the most of existing programming languages.
+
+#### 4.7
+Correction of errors made in the data seems to me appropriate to carry out after uploading files to the database. Sometimes a record that is a mistake in terms of filling a particular type of data just contains additional information about geoobjects.
 
 ### 5. Data Overview
 
