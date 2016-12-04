@@ -50,7 +50,8 @@ Another possible way is extracting data files in many different formats from the
 https://mapzen.com/data/metro-extracts/metro/dubai_abu-dhabi/ 
 The files dubai_abu-dhabi.osm, dubai_abu-dhabi_buildings.geojson, etc. were downloaded.
 
-Size of files
+1.4. Size of downloaded files
+
 dubai_abu-dhabi0.osm:  404994999
 dubai_abu-dhabi.osm:  394382598
 dubai_abu-dhabi_admin.geojson:  1345560

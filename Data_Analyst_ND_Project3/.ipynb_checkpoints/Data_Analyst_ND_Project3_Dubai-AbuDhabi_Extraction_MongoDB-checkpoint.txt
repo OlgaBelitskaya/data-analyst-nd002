@@ -50,7 +50,8 @@ Another possible way is extracting data files in many different formats from the
 https://mapzen.com/data/metro-extracts/metro/dubai_abu-dhabi/ 
 The files dubai_abu-dhabi.osm, dubai_abu-dhabi_buildings.geojson, etc. were downloaded.
 
-Size of files
+1.4. Size of downloaded files.
+
 dubai_abu-dhabi0.osm:  404994999
 dubai_abu-dhabi.osm:  394382598
 dubai_abu-dhabi_admin.geojson:  1345560
@@ -922,7 +923,7 @@ can be proposed: automatic comparison with existing data and verification for ne
 The lack of a uniform postal code system in this concrete dataset complicates their identification and verification.
 4.6
 During working on the project, I spent a lot of time on the conversion of one type of data file to another. 
-Each format has its own advantages and disadvantages. Probably, it is possible to design an universal file type that allows us 
+Each format has its own advantages and disadvantages. Probably, it is possible to design a universal file type that allows us 
 to store data of any kind, combining the advantages of all existing types and applicable in the most of existing programming languages.
 4.7
 Correction of errors made in the data seems to me appropriate to carry out after uploading files to the database. 
