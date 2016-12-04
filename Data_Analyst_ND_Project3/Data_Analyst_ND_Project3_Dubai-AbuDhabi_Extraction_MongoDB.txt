@@ -841,6 +841,65 @@ Counting zipcodes with one document:
 
 {u'_id': 1, u'count': 85}.
 
+
+3.5 Update values in Mongo DB
+At the preliminary stage of familiarization with the information in the osm file problem and erroneous points in the dataset were found. Now we can replace the wrong values and decide many important tasks at the same time:
+check the data about concrete geoobjects,
+use additional information in fields,
+update values.
+
+3.5.1 One value
+The example of the document with the wrong value:
+{u'_id': ObjectId('58339f5578c5c4115eb124ff'),
+ u'address': {u'city': u'Al Ain', u'street': u'Twam St.'},
+ u'building': u'residential',
+ u'created': {u'changeset': u'22394079',
+  u'timestamp': u'2014-05-17T18:34:16Z',
+  u'uid': u'2079950',
+  u'user': u'Anna23',
+  u'version': u'1'},
+ u'id': u'282551277',
+ u'name': u"Maqam 2 Female Students' Accomodation",
+ u'node_refs': [u'2864941597',
+  u'2864941598',
+  u'2864941599',
+  u'2864941600',
+  u'2864942001',
+  u'2864941597'],
+ u'type': u'way'}
+ 
+The process of replacing:
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339c6b78c5c4115e9f47e9')}, {'$set': {'address.street': 'Al Sufouh Road'}}, upsert=False)
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339ba178c5c4115e97e58d')}, 
+                           {'$set': {'address.street': 'Sheikh Rashed Bin Said Road'}}, 
+                           upsert=False)
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339dab78c5c4115ea6fc12')}, {'$set': {'address.street': 'Oud Metha Road'}}, upsert=False)
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339c6b78c5c4115e9f47e4')}, {'$set': {'address.street': 'Jumeirah Beach Road'}}, upsert=False)
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339c6b78c5c4115e9f47e5')}, {'$set': {'address.street': 'Oud Metha Road'}}, upsert=False)
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339f7878c5c4115eb287b1')}, {'$set': {'address.street': 'Al Falak Street'}}, upsert=False)
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339f5578c5c4115eb124ff')}, {'$set': {'address.street': 'Twam Street'}}, upsert=False)
+
+The example of checking the result:
+{u'_id': ObjectId('58339f5578c5c4115eb124ff'),
+ u'address': {u'city': u'Al Ain', u'street': u'Twam Street'},
+ u'building': u'residential',
+ u'created': {u'changeset': u'22394079',
+  u'timestamp': u'2014-05-17T18:34:16Z',
+  u'uid': u'2079950',
+  u'user': u'Anna23',
+  u'version': u'1'},
+ u'id': u'282551277',
+ u'name': u"Maqam 2 Female Students' Accomodation",
+ u'node_refs': [u'2864941597',
+  u'2864941598',
+  u'2864941599',
+  u'2864941600',
+  u'2864942001',
+  u'2864941597'],
+ u'type': u'way'}
+
+3.5.2 The same manipulations we do with several mistakes and fields. The reader can see it in the full version of the project.
+
 4. Problems and errors
 
 4.1
@@ -863,7 +922,7 @@ can be proposed: automatic comparison with existing data and verification for ne
 The lack of a uniform postal code system in this concrete dataset complicates their identification and verification.
 4.6
 During working on the project, I spent a lot of time on the conversion of one type of data file to another. 
-Each format has its own advantages and disadvantages. Probably, it is possible to design a universal file type that allows us 
+Each format has its own advantages and disadvantages. Probably, it is possible to design an universal file type that allows us 
 to store data of any kind, combining the advantages of all existing types and applicable in the most of existing programming languages.
 4.7
 Correction of errors made in the data seems to me appropriate to carry out after uploading files to the database. 
