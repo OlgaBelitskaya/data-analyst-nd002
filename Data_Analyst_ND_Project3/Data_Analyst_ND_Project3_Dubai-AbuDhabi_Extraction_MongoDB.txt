@@ -135,7 +135,9 @@ Exploring the digital data in this file, we can get a large number of other stat
 
 {'lower': 479404, 'lower_colon': 20602, 'other': 3001, 'problemchars': 20}
 
-2.4 Number of street addresses - 1789.
+2.4 Street addresses
+
+Number of street addresses - 1789.
 
 2.5 Places
 
@@ -810,7 +812,7 @@ Three most common places:
 {u'_id': u'Yas Mall', u'count': 14}, {u'_id': u'Jumeirah Village Triangle', u'count': 10}, 
 {u'_id': u'Deerfields Townsquare Shopping Centre', u'count': 2}.
 
-A list of 10 most common types of buildings:
+The list of 10 most common types of buildings:
  {u'_id': u'yes', u'count': 43834},
  {u'_id': u'house', u'count': 4216},
  {u'_id': u'apartments', u'count': 2910},
@@ -822,7 +824,7 @@ A list of 10 most common types of buildings:
  {u'_id': u'garage', u'count': 314},
  {u'_id': u'commercial', u'count': 313}
 
-A list of 10 most common facilities:
+The list of 10 most common facilities:
  {u'_id': u'parking', u'count': 5602},
  {u'_id': u'place_of_worship', u'count': 1443},
  {u'_id': u'restaurant', u'count': 1372},
@@ -834,7 +836,7 @@ A list of 10 most common facilities:
  {u'_id': u'pharmacy', u'count': 311},
  {u'_id': u'shelter', u'count': 247}.
  
-A list of 3 most common zipcodes:
+The list of 3 most common zipcodes:
 
 {u'_id': u'811', u'count': 5}, {u'_id': u'473828', u'count': 4}, {u'_id': u'24857', u'count': 3}.
 
