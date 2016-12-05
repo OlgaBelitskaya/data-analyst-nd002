@@ -1,0 +1,1225 @@
+P3: OpenStreetMap Data Case Study. Dubai and Abu-Dhabi.
+
+The full version of the project: 
+https://github.com/OlgaBelitskaya/data-analyst-nd002/blob/master/Data_Analyst_ND_Project3/Data_Analyst_ND_Project3_Dubai-AbuDhabi.ipynb
+
+0. Code Resources
+
+0.1. Code Library
+
+Basic resources for this project are software libraries for python and MondoDB.
+
+0.2. References
+
+https://wiki.openstreetmap.org/wiki/OSM_XML
+http://learnosm.org/en/osm-data/getting-data/#downloading-data-extracts
+https://mapzen.com/data/metro-extracts/
+http://python-visualization.github.io/folium/quickstart.html
+http://geopandas.org/mapping.html
+https://borealperspectives.wordpress.com/2016/03/07/plotting-polygon-shapefiles-on-a-matplotlib-basemap-with-geopandas-shapely-and-descartes/
+http://maxberggren.se/2015/08/04/basemap/
+http://api.mongodb.com/python/current/tutorial.html
+https://docs.mongodb.com/manual/reference/operator/query/
+
+0.3. Code for Researching the Imported Files and Creating the Data.
+
+Сode snippets of the courses "Intro to Relational Databases", "Data Wrangling with MongoDB" (udacity.com) 
+have been used here for downloading, analysing and cleaning the data. On this basis, several useful functions 
+were built for these goals too.
+
+1. Map Area
+
+1.1. The map
+
+I have chosed the map sector of the dynamically developing area in the UAE.
+For displaying the area I have used the package "folium" and the coordinates of this area in dubai_abu-dhabi.osm.
+
+Bounds: minlat="23.7350" minlon="53.5800" maxlat="26.5390" maxlon="56.8870".
+
+1.2 Extract with Python
+
+There are several ways to extract geodata. One of them is to do this with this python code cell. 
+This set of commands allows us to upload a file in the format .osm using the coordinates of the rectangle corners.
+
+file00 = urllib.URLopener()
+file00.retrieve("http://overpass-api.de/api/map? bbox=53.5800,23.7350,56.8870,26.5390", "dubai_abu-dhabi0.osm")
+
+1.3 Extract from OpenStreetMaps.org
+
+Another possible way is extracting data files in many different formats from the website:
+https://mapzen.com/data/metro-extracts/metro/dubai_abu-dhabi/ 
+The files dubai_abu-dhabi.osm, dubai_abu-dhabi_buildings.geojson, etc. were downloaded.
+
+1.4. Size of downloaded files.
+
+dubai_abu-dhabi0.osm:  404994999
+dubai_abu-dhabi.osm:  394382598
+dubai_abu-dhabi_admin.geojson:  1345560
+dubai_abu-dhabi_roads.geojson:  86725595
+dubai_abu-dhabi_waterareas.geojson:  2415039
+
+1.5 Osm files
+
+This is not so large piece of data to process (394,4 MB) in the dubai_abu-dhabi .osm file and for me it is 
+a very interesting subject for reseach because of many reasons.
+For example, it is a constant and rapidly changing territory with awesome ideas about area development.
+Applying the special function (§ 0.3) I created the sample_dubai_abu-dhabi.osm file from the dubai_abu-dhabi .osm file.
+
+Size of sample_dubai_abu-dhabi.osm:  3947501
+
+1.6 Geojson files
+
+It's possible to download from OpenStreetMap several type of files: .osm, .geojson, etc.
+For displaying the data in .geojson files the package "geopandas" also can be useful. 
+As an example you can see the fragments of the data frame for administrative borders, roads and water areas.
+
+The dimensionality of the data
+dataframe for admin borders: (231, 6)
+dataframe for roads: (130060, 13)
+dataframe for water areas: (1510, 6)
+
+Borders:
+	admin_leve	geometry	id	name	osm_id	type
+0	2.0	POLYGON ((56.20800613403377 25.25621456273814,...	1.0	عمان	-305138.0	administrative
+1	2.0	(POLYGON ((53.97770508117634 25.22422729239028...	2.0	الإمارات العربيّة المتّحدة	-307763.0	administrative
+2	4.0	(POLYGON ((54.71539805585797 25.06933869038014...	3.0	دبي‎	-3766483.0	administrative
+
+Roads:
+	access	bridge	class	geometry	id	name	oneway	osm_id	ref	service	tunnel	type	z_order
+0	None	0	highway	LINESTRING (55.32015262128414 25.2757784276593...	1.0	None	0	4342763.0	None	None	0	residential	3.0
+1	None	0	highway	LINESTRING (55.31645762690815 25.2760928328473...	2.0	None	0	4342765.0	None	None	0	residential	3.0
+2	None	0	highway	LINESTRING (55.36891333716767 25.2681990917146...	3.0	None	0	4387626.0	None	None	0	residential	3.0
+
+Water areas:
+	area	geometry	id	name	osm_id	type
+0	0.000007	POLYGON ((55.16472162631962 25.06663418550218,...	1.0	None	-2809.0	water
+1	0.000001	POLYGON ((55.33883487762949 25.24116309539045,...	2.0	None	-1271995.0	water
+2	0.000001	POLYGON ((55.15874105458627 25.07026178937664,...	3.0	None	-2812.0	water
+
+1.7 Shapefiles
+
+For displaying the data in shapefiles it's possible to apply the package "basemap". 
+
+1.8 Json file
+
+Applying the special function I created the dubai_abu-dhabi.osm.json from the dubai_abu-dhabi.osm file.
+
+
+2. Data (OSM)
+
+Let's discover the data in .osm files in details. It contains a lot of information of geographical objects.
+
+2.1 Tags
+
+OpenStreetMap represents physical features on the ground (e.g., roads or buildings) using tags attached to 
+its basic data structures (its nodes, ways, and relations). Tags help describe an item and allow it to be found 
+again by browsing or searching. They are chosen by the item's creator depending on the data point.
+
+{'node': 1890178, 'nd': 2271372, 'bounds': 1, 'member': 9779, 'tag': 503027, 'relation': 2820, 'way': 234327, 'osm': 1}
+
+2.2 Users
+
+Map data is collected from zero by volunteers (users). We can get the number and the list of them for this piece of the data.
+
+Number of users - 1895
+['-KINGSMAN-', '0508799996', '08xavstj', '12DonW', '12Katniss', '13 digits', '25837', '3abdalla', '4b696d', '4rch', '66444098', '7dhd',
+'@kevin_bullock', 'AAANNNDDD', 'AC FootCap', 'AE35', 'AHMED ABASHAR', 'AKazariani', 'ASHRAF CHOOLAKKADAVIL', 'A_Sadath', 'AakankshaR', 
+'Aal Ibra240380heem', 'Abbadi', 'Abdalmajeed Najmi', 'Abdelhadi Azaizeh', 'Abdul Noor Bank', 'Abdul Rahim Khan', 'Abdul wahab rashid', 
+'Abdulaziz AlSweda', 'Abdulla Shuqair', 'Abdullah Al Hany', 'Abdullah Alshareef', 'Abdullah Rana', 'Abdullah777', 'Abdurehman', 
+'AbeMazid', 'Abhin', 'Abiodun Babalola', 'Abllo', 'Aboad Jasim', 'Abood Ad', 'Abrarbhai', 'Absamc', 'AbuFazal', 'Abud', 'Adel alsaad', 
+'Adib Yz', 'Adil Alsuleimani', 'Adley', 'Adm Vtc']
+
+Exploring the digital data in this file, we can get a large number of other statistics and information.
+
+2.3 Keys
+
+{'lower': 479404, 'lower_colon': 20602, 'other': 3001, 'problemchars': 20}
+
+2.4 Street addresses
+
+Number of street addresses - 1789.
+
+2.5 Places
+
+{'town': 31, 'city': 13, 'island': 67, 'hamlet': 97, 'other': 749, 'village': 608}
+
+2.6 Names in English
+
+The number of names in English:  3413.
+
+The list of examples for this piece of the data:
+['Tawi Madsus', 'Bani Umar', 'Jabal Nazifi', 'Umm Al Quwain', 'Le Mart', 'DoT Scrap Store', 'Buraimi Police station', 'CEREEN Textiles', 
+'Faseela Grocery', 'Al Muwaylah', 'Najman Grocery', 'Ras Huwayni', 'Al Musalall Grocery', 'Huwayniyah', 'Dariush Boulevard', 'OM YAMAN', 
+'Azerbayejan', 'Ayn al Mahab', 'Saad Pharmacy', 'Nabil house', 'Al Jowar', 'Zarub', 'Dubai Homeopathy Health Centre', 'Wadi Massayid', 
+'New academey school', 'Mohd Ibrahn Grocery', 'Ramlat Qasf', 'Fujayj', 'Harat ash Shaykh', 'Subtan', 'VMS-19', 'Emirates Towers', 
+'Qurun Hamad', 'Ruqat Bakhit', 'Tawi Salim', 'Carrefour City', 'mini mart', 'Al Husaifin', 'Darwish Lshkari Grocery', 'Wadi Hiyar', 
+'Khawr Naid', 'Wadi Sidr', 'Hadirah', 'Al Darak Grocery', 'Holiday Mini Mart', 'Sharyat Ayqal', 'Ras Humsi', 'Dansaf', 'Tawi Saghabah', 
+'Wadi Shukayyah'].
+
+On this map it may be noted a large number of duplicate names in English.
+
+2.7 Postal Codes
+
+In UAE mail is usually delivered to a P.O Box. As we can see practically all postcodes are individual. 
+Let's display the list of P.O Boxes and the number of users for each of them (1-2 in the most of cases).
+
+The number of postcodes: 116.
+
+The list of examples for this piece of the data:
+{'00962': 1, '34121': 1, '7819': 1, '108100': 1, 'P.O. Box 5618, Abu Dhabi, U.A.E': 1, '8988': 1, '0': 1, '23117': 2, 'P O BOX 3766': 1, 
+'103711': 2, '549': 1, '38495': 1, 'P.O. Box 4605': 1, 'Muhaisnah 4': 1, '20767': 1, '81730': 1, '2504': 1, 'PO Box 6770': 1, '8845': 1, 
+'PO Box 43377': 1, '97717': 1, '24857': 3, '232574': 1, 'P.O. Box 9770': 1, '60884': 1, '44263': 1, '277': 1, '16095': 1, 'P. O. Box 31166': 1,
+'502227': 1, '2666': 1, '41318': 1, 'P. O. Box 123234': 1, '00971': 1, '128358': 1, '79506': 1, '115443': 1, '500368': 1, '473828': 4, 
+'28676': 1, '114692': 1, '232144': 1, '2574': 1, '121641': 1, '1243': 1, '125939': 2, 'PO Box 118737': 1, '57566': 1, '6834': 2, '28818': 1, 
+'PO Box 114822': 1, '42524': 1, '52799': 1, '2157': 1, '392189': 1, '9978': 1, '22436': 3, '231992': 1, '46477': 1, '5280 dubai': 1, '811': 5, 
+'42324': 1, '12345': 1, '38126': 1, '113431': 1, '64649': 1, '47612': 1, '24976': 1, 'P.O. Box 6446': 1, '111695': 1, '41974': 1, '44548': 1, 
+'0000': 1, '119417': 1, '1111': 1, '7770': 1, '77947': 1, '4599': 1, '25494': 1, '47602': 1, '1234': 1, '11999': 2, '34238': 1, '20661': 1, 
+'53577': 2, '20268': 2, '9292': 1, '3541': 1, '000000': 2, '000001': 1, '38575': 1, '444786': 1, '263076': 1, '71444': 2, '32923': 1, '26268': 1}
+
+2.8 Street names
+
+{'07': set(['07']),
+ '1': set(['20B Street, Safa 1',
+           'City Walk, Jumeirah 1',
+           'E 1',
+           'Hattan Street 1',
+           'aljurf ind 1']),
+ '10': set(['Street 10', 'ind area 10']),
+ '11': set(['shabiya -11']),
+ '111': set(['P.O.Box 111']),
+ '12': set(['District 12', 'Street 12']),
+ '12A': set(['12A']),
+ '12K': set(['District 12K']),
+ '13': set(['Street 13', 'industrial 13', 'street 13\n']),
+ '14': set(['11th street, Musaffah M 14',
+            'Musaffah Industrial Area Street 14']),
+ '147': set(['147']),
+ '15': set(['sweet 15']),
+ '153': set(['Community 153']),
+ '166': set(['166']),
+ '17': set(['17']),
+ '18': set(['Street 18', 'street 18']),
+ '19': set(['19']),
+ '19th)': set(["Sa'ada Street (19th)"]),
+ '1D': set(['1D']),
+ '2': set(['Al Barsha south 2',
+           'Al Jaddaf 2',
+           'Al Nahda 2',
+           'Dragon Mart 2',
+           'Dubai Investment Park 2',
+           'Hattan Street 2',
+           'Icad 2',
+           'Street 2',
+           'dubai investment park 2']),
+ '2-A': set(['2-A']),
+ '282825': set(['P.O. Box 282825']),
+ '3': set(['13C street , Al Quoz Industrial 3', 'Street 3']),
+ '3005': set(['P.O. Box: 3005']),
+ '333': set(['Exit 333']),
+ '34429': set(['P.O. Box 34429']),
+ '39999': set(['Corniche West Street, P.O.Box 39999']),
+ '4': set(['industrial 4']),
+ '4010': set(['Corniche West Street, P.O. Box: 4010']),
+ '43': set(['Street 43']),
+ '434': set(['P.O.Box 434']),
+ '47': set(['47']),
+ '5': set(['Jumeirah Village Triangle,  District 2, Street 5',
+           'Street 5',
+           'industrial area 5']),
+ '50': set(['P.O. Box 50']),
+ '54': set(['Plot No. M-26, Area 54']),
+ '56': set(['56']),
+ '6': set(['6']),
+ '606': set(['Gate Precinct 5 Suite 606']),
+ '7': set(['Street 7']),
+ '724': set(['Street 724']),
+ '74147': set(['P.O.Box 74147']),
+ '8': set(['Street 8']),
+ '92': set(['Street 92']),
+ 'AE': set(['Bahar 7 Jumeirah Beach Res, Marsa, Dubai, AE']),
+ 'Almidfaa': set(['Ibrahim Almidfaa']),
+ 'Arab': set(['Mina Al Arab']),
+ 'Arif': set(['Abdul Salam Arif']),
+ 'Badaa': set(['Al Hudaiba Road, Al Badaa\n']),
+ 'Bahar': set(['Souk Al Bahar']),
+ 'Baharia': set(['Baharia']),
+ 'Bahia': set(['Al Shahama Rd., Al Bahia']),
+ 'Barsha': set(['Al Barsha']),
+ 'Bateen': set(['Al Bateen']),
+ 'Bay': set(['Business Bay']),
+ 'Br': set(['Al Qaram Br']),
+ 'Bridge': set(['Rawdha Bridge']),
+ 'Building': set(['Al Ghuwair Building']),
+ 'C': set(['TECOM SECTION C']),
+ 'C12': set(['District 12 C12']),
+ 'C15': set(['China C15']),
+ 'CBD06': set(['CBD06']),
+ 'Cafe': set(['No Fear Cafe']),
+ 'Cafeteria': set(['Warrior Net Cafeteria']),
+ 'Center': set(['High Bay Business Center']),
+ 'Centre': set(['Ibn Sina Medical Centre']),
+ 'Circuit': set(['Yas Marina Circuit']),
+ 'City': set(['Academic City',
+              'Dubai Healthcare City',
+              'Mohammed Bin Zayed City',
+              'Motor City',
+              'Up Town Motor City',
+              'Zayed Sports City']),
+ 'Community': set(['Emirates Living Community']),
+ 'Cornich': set(['Airport road across Cornich']),
+ 'Corniche': set(['Al Qawasim Corniche',
+                  'P.O.Box 33704,Villa No. 2, Al Qawasim Corniche']),
+ 'Crownn': set(['14th Street, Al Khalidiya, Near Saba Crownn']),
+ 'DIFC': set(['DIFC']),
+ 'Dhabi': set(['Sheraton Abu Dhabi', 'Southern Sun Abu Dhabi']),
+ 'Dip2': set(['Dip2']),
+ 'Dome': set(['The Dome']),
+ 'Downtown': set(['Al Reef Downtown']),
+ 'Dubai': set(['Silverene Tower, Dubai',
+               'SouthRidge Branch, Downtown Dubai',
+               'Street 13, Dubai']),
+ 'E': set(['Road E']),
+ 'E-11)': set(['Sheikh Zayed Road (E-11)']),
+ 'East': set(['Corniche Road East', 'Kahraba South East']),
+ 'Emirates': set(['Rose 2 - 17a St - Dubai 17a St Dubai United Arab Emirates']),
+ 'Floor': set(['Boutik Mall, 1st Floor', 'Tameem House Building Floor']),
+ 'Galleria': set(['The Galleria']),
+ 'Garhoud': set(['-Al Garhoud', 'Al Garhoud']),
+ 'Gate': set(['Dubai Ibn Battuta Gate']),
+ 'Ghuwair': set(['Al Ghuwair']),
+ 'Hail': set(['Abu Hail']),
+ 'Highway': set(['Sheikh Khalifa Bin Zayed Highway']),
+ 'Hill': set(['Newbridge Hill']),
+ 'Intersection': set(['Al Murraqabat Intersection']),
+ 'Island': set(['Paragon Mall, Reem Island', 'Park Island', 'Yas Island']),
+ 'JLT': set(['Cluster T, JLT']),
+ 'Jumeirah': set(['Crescent Rd, The Palm Jumeirah',
+                  'Crescent Road, Atlantis Palm Jumeirah']),
+ 'Karama': set(['Karama']),
+ 'Khaimah': set(['Ras Al Khaimah']),
+ 'Khalidiya': set(['Khalidiya']),
+ 'Khorfakkan': set(['Al Rifa Street, Khorfakkan', 'Khorfakkan']),
+ 'L': set(['Greece L']),
+ 'M-24': set(['M-24']),
+ 'Mai': set(['6th Street Tanker Mai']),
+ 'Majaz': set(['Corniche Street, Al Majaz']),
+ 'Maktoum': set(['Al Maktoum']),
+ 'Mall': set(['Abu Dhabi Mall',
+              'Al Wahda Mall',
+              'Deerfields Mall',
+              'Paragon Mall',
+              'Yas Mall']),
+ 'Mankhool': set(['Al Mankhool']),
+ 'Marina': set(['Dubai Marina', 'The Walk, Dubai Marina']),
+ 'Market': set(['Near Ramla Hyper Market', 'Souk, Central Market']),
+ 'Marrakesh': set(['Marrakesh']),
+ 'Masyaf': set(['Dar Al Masyaf']),
+ 'Metha': set(['Oud Metha']),
+ 'Muneera': set(['Al Muneera']),
+ 'Muroor': set(['Muroor']),
+ 'Musaffah': set(['Musaffah']),
+ 'Muzera': set(['Hatta Oman road Muzera']),
+ 'N': set(['Persia N']),
+ 'Naser': set(['Jamal Abdul Naser']),
+ 'Nayhan': set(['Al Nayhan']),
+ 'OASIS': set(['AXIS 8 SILICON OASIS']),
+ 'Oasis': set(['Dubai Silicon Oasis']),
+ 'Plaza': set(['Etihad Plaza', 'Marsa Plaza', 'Yas Plaza']),
+ 'Qasba': set(['Maraya Art Centre, Al Qasba']),
+ 'Qasr': set(['Al Qasr']),
+ 'ROAD': set(['MUROOR ROAD']),
+ 'Ramth': set(['Al Ramth']),
+ 'Ranches': set(['Arabian Ranches']),
+ 'Rashid': set(['Al Mina Road, Port Rashid']),
+ 'Rd': set(['Al Safouh Rd',
+            'Al Sufouh Rd',
+            'JBR Rd',
+            'Jumeirah Beach Rd',
+            'Oud Metha Rd',
+            'Sheikh Rashed Bin Said Rd']),
+ 'Residence': set(['Ewan Residence', 'The Walk, Jumeirah Beach Residence']),
+ 'Resort)': set(['(Inside of the Hotel The Cove Rotana Resort)']),
+ 'Road)': set(['2nd Street (Old Airport Road)',
+               'Al Khaleej Al Arabi Road (Coast Road)']),
+ 'Rumooolooo': set(['Marrakesh Street, Garhuod, Rumooolooo']),
+ 'STREET': set(['11TH STREET']),
+ 'Saada': set(['Al Saada']),
+ 'Sadiyat': set(['Mina Sadiyat']),
+ 'Safa': set(['1 Street 17,  Al Safa']),
+ 'Sanaiya': set(['Sanaiya']),
+ 'Sands': set(['Seven Sands']),
+ 'Shamkha': set(['Al Shamkha']),
+ 'Sharjah': set(['Al Nud Sharjah',
+                 'Corniche Street Al Jubail ,Sharjah',
+                 'Jawazath Road, Behind Mashreq Bank, Sharjah']),
+ 'Sharq': set(['Al Sharq']),
+ 'Slipway': set(['Memzar Slipway']),
+ 'South': set(['Bijada Boulevard South']),
+ 'St': set(['12 D St',
+            '16 D St',
+            '1b St',
+            '3 A St',
+            '34d St',
+            '6b St',
+            '81 A St',
+            'Al Hubob St',
+            'Al Zahra St',
+            'Electra St',
+            'Meena St',
+            'Rigga Al Buteen St']),
+ 'St.': set(['153 St.',
+             "Al Bada' St.",
+             'Al Burooj St.',
+             'Al Etisalat St.',
+             'Al Falak St.',
+             'Hamdan Bin Zayed Al Awwal St.',
+             'King Abdul Aziz St.',
+             'King Faisal St.',
+             'Mohammed Bin Khalifa St.',
+             'Nahyan Al Awwal St.',
+             'Noor Islamic Bank St.',
+             'Third Industrial St.',
+             'Twam St.',
+             'Wahda St.']),
+ 'Street)': set(['Fatima Bint Mubarak Street (former Najda Street)',
+                 'Mohammed Bin Khalifa Street (15th Street)',
+                 'Sheikh Zayed The First Street (Khalidiyah Street)']),
+ 'Thammam': set(['Al Thammam']),
+ 'Tower': set(['Sheikh Zayed Road, Latifa Tower']),
+ 'Towers': set(['Cluster I, AU Tower (Gold Tower),Jumierah Lake Towers',
+                'Jumeirah Lake Towers',
+                'Jumeirah Lakes Towers']),
+ 'Townsquare': set(['Deerfields Townsquare']),
+ 'Village': set(['Al Badia Hillside Village', 'Cedre Village']),
+ 'WB3': set(['Road: WB3']),
+ 'Walk': set(['Jumeirah Walk']),
+ 'Way': set(['Buttercup Way', 'Daffodil Way', 'Daisy Way', 'Tulip Way']),
+ 'West': set(['Corniche Road West']),
+ 'Y': set(['Swiss Tower, Cluster Y']),
+ 'a': set(['29 a']),
+ 'albuteen': set(['albuteen']),
+ 'b': set(['11 b']),
+ 'buil.': set(['17th St. Old Airport Rd. Sea Shell buil.']),
+ 'building': set(['Abraj al Mamzar Emirates building']),
+ 'cctv': set(['Max com Technologies cctv']),
+ 'center': set(['near health care center']),
+ 'club': set(['Muhaila , Al Teqa children club']),
+ 'cluster': set(['England cluster']),
+ 'exit': set(['Dubai Marina Mall exit']),
+ 'gate': set(['al khail gate']),
+ 'morocco': set(['morocco']),
+ 'rawada': set(['al rawada']),
+ 'rd': set(['sheik rashid rd']),
+ 'residential': set(['residential']),
+ 'road': set(['Abu Baker al Siddique road',
+              'Airport road',
+              'Ajman Corniche road',
+              'Ajman corniche road',
+              'Al ghubaiba road',
+              'Beirut road',
+              'Doha road',
+              'al nahda road',
+              'al rams road']),
+ 'shikla': set(['Khatam al shikla']),
+ 'skycourts': set(['skycourts']),
+ 'south': set(['al barsha south']),
+ 'st': set(['13c st', '27b st', 'Al Safouh st']),
+ 'street': set(['10th street',
+                '15th street',
+                '8th street',
+                'Al Nasr street',
+                'Amman street',
+                'Baghdad street',
+                'Damascus street',
+                'Damscus street',
+                'Electra street',
+                'Marrakech street',
+                'Wahda street',
+                'sheikh khalid bin khalid street']),
+ 'tower': set(['lakeshore tower']),
+ 'track': set(['Nahda park jogging track'])}
+ 
+Updated list of street names:
+ 
+Al Nayhan => Al Nayhan
+Al Sufouh Rd => Al Sufouh Road
+JBR Rd => JBR Road
+Sheikh Rashed Bin Said Rd => Sheikh Rashed Bin Said Road
+Oud Metha Rd => Oud Metha Road
+Al Safouh Rd => Al Safouh Road
+Jumeirah Beach Rd => Jumeirah Beach Road
+Al Hudaiba Road, Al Badaa
+=> Al Hudaiba Road, Al Badaa
+14th Street, Al Khalidiya, Near Saba Crownn => 14th Street, Al Khalidiya, Near Saba Crownn
+Newbridge Hill => Newbridge Hill
+Dubai Ibn Battuta Gate => Dubai Ibn Battuta Gate
+Oud Metha => Oud Metha
+12A => 12A
+Maraya Art Centre, Al Qasba => Maraya Art Centre, Al Qasba
+P.O.Box 74147 => P.O.Box 74147
+residential => residential
+District 12K => District 12K
+The Dome => The Dome
+industrial 4 => industrial 4
+Al Qaram Br => Al Qaram Br
+The Walk, Dubai Marina => The Walk, Dubai Marina
+Dubai Marina => Dubai Marina
+Street 8 => Street 8
+MUROOR ROAD => MUROOR Road
+Al Ghuwair Building => Al Ghuwair Building
+SouthRidge Branch, Downtown Dubai => SouthRidge Branch, Downtown Dubai
+Street 13, Dubai => Street 13, Dubai
+Silverene Tower, Dubai => Silverene Tower, Dubai
+Al Ghuwair => Al Ghuwair
+Paragon Mall, Reem Island => Paragon Mall, Reem Island
+Park Island => Park Island
+Yas Island => Yas Island
+Max com Technologies cctv => Max com Technologies cctv
+Greece L => Greece L
+Business Bay => Business Bay
+Al Thammam => Al Thammam
+Deerfields Townsquare => Deerfields Townsquare
+Souk Al Bahar => Souk Al Bahar
+al khail gate => al khail gate
+Sheikh Zayed Road, Latifa Tower => Sheikh Zayed Road, Latifa Tower
+Al Shahama Rd., Al Bahia => Al Shahama Rd., Al Bahia
+Al Murraqabat Intersection => Al Murraqabat Intersection
+Corniche Street, Al Majaz => Corniche Street, Al Majaz
+Plot No. M-26, Area 54 => Plot No. M-26, Area 54
+56 => 56
+Baharia => Baharia
+Airport road across Cornich => Airport road across Cornich
+11TH STREET => 11TH Street
+Seven Sands => Seven Sands
+Al Sharq => Al Sharq
+Marrakesh Street, Garhuod, Rumooolooo => Marrakesh Street, Garhuod, Rumooolooo
+Corniche Road West => Corniche Road West
+P.O.Box 33704,Villa No. 2, Al Qawasim Corniche => P.O.Box 33704,Villa No. 2, Al Qawasim Corniche
+Al Qawasim Corniche => Al Qawasim Corniche
+Damscus street => Damscus Street
+Amman street => Amman Street
+15th street => 15th Street
+Marrakech street => Marrakech Street
+Baghdad street => Baghdad Street
+10th street => 10th Street
+Damascus street => Damascus Street
+Wahda street => Wahda Street
+8th street => 8th Street
+Al Nasr street => Al Nasr Street
+sheikh khalid bin khalid street => sheikh khalid bin khalid Street
+Electra street => Electra Street
+P.O.Box 111 => P.O.Box 111
+Road E => Road E
+Street 5 => Street 5
+industrial area 5 => industrial area 5
+Jumeirah Village Triangle,  District 2, Street 5 => Jumeirah Village Triangle,  District 2, Street 5
+DIFC => DIFC
+District 12 => District 12
+Street 12 => Street 12
+2nd Street (Old Airport Road) => 2nd Street (Old Airport Road)
+Al Khaleej Al Arabi Road (Coast Road) => Al Khaleej Al Arabi Road (Coast Road)
+07 => 07
+Jumeirah Lakes Towers => Jumeirah Lakes Towers
+Jumeirah Lake Towers => Jumeirah Lake Towers
+Cluster I, AU Tower (Gold Tower),Jumierah Lake Towers => Cluster I, AU Tower (Gold Tower),Jumierah Lake Towers
+(Inside of the Hotel The Cove Rotana Resort) => (Inside of the Hotel The Cove Rotana Resort)
+1 Street 17,  Al Safa => 1 Street 17,  Al Safa
+Al Reef Downtown => Al Reef Downtown
+Street 3 => Street 3
+13C street , Al Quoz Industrial 3 => 13C street , Al Quoz Industrial 3
+Dubai Marina Mall exit => Dubai Marina Mall exit
+Street 7 => Street 7
+Memzar Slipway => Memzar Slipway
+Al Shamkha => Al Shamkha
+sheik rashid rd => sheik rashid Road
+Sanaiya => Sanaiya
+TECOM SECTION C => TECOM SECTION C
+Al Maktoum => Al Maktoum
+Sheikh Khalifa Bin Zayed Highway => Sheikh Khalifa Bin Zayed Highway
+Etihad Plaza => Etihad Plaza
+Marsa Plaza => Marsa Plaza
+Yas Plaza => Yas Plaza
+Jamal Abdul Naser => Jamal Abdul Naser
+Paragon Mall => Paragon Mall
+Yas Mall => Yas Mall
+Deerfields Mall => Deerfields Mall
+Abu Dhabi Mall => Abu Dhabi Mall
+Al Wahda Mall => Al Wahda Mall
+Yas Marina Circuit => Yas Marina Circuit
+Al Muneera => Al Muneera
+lakeshore tower => lakeshore tower
+Cluster T, JLT => Cluster T, JLT
+albuteen => albuteen
+Muroor => Muroor
+Dip2 => Dip2
+Dar Al Masyaf => Dar Al Masyaf
+Abu Hail => Abu Hail
+Ras Al Khaimah => Ras Al Khaimah
+Ibrahim Almidfaa => Ibrahim Almidfaa
+P.O.Box 434 => P.O.Box 434
+No Fear Cafe => No Fear Cafe
+al rams road => al rams Road
+Doha road => Doha Road
+Al ghubaiba road => Al ghubaiba Road
+Beirut road => Beirut Road
+Ajman corniche road => Ajman corniche Road
+Abu Baker al Siddique road => Abu Baker al Siddique Road
+Ajman Corniche road => Ajman Corniche Road
+Airport road => Airport Road
+al nahda road => al nahda Road
+AXIS 8 SILICON OASIS => AXIS 8 SILICON OASIS
+Wahda St. => Wahda Street
+Al Falak St. => Al Falak Street
+153 St. => 153 Street
+Hamdan Bin Zayed Al Awwal St. => Hamdan Bin Zayed Al Awwal Street
+Twam St. => Twam Street
+Al Etisalat St. => Al Etisalat Street
+King Faisal St. => King Faisal Street
+Mohammed Bin Khalifa St. => Mohammed Bin Khalifa Street
+Al Bada' St. => Al Bada' Street
+Al Burooj St. => Al Burooj Street
+King Abdul Aziz St. => King Abdul Aziz Street
+Third Industrial St. => Third Industrial Street
+Nahyan Al Awwal St. => Nahyan Al Awwal Street
+Noor Islamic Bank St. => Noor Islamic Bank Street
+Exit 333 => Exit 333
+P.O. Box: 3005 => P.O. Box: 3005
+1D => 1D
+Tulip Way => Tulip Way
+Daisy Way => Daisy Way
+Daffodil Way => Daffodil Way
+Buttercup Way => Buttercup Way
+The Galleria => The Galleria
+Arabian Ranches => Arabian Ranches
+Marrakesh => Marrakesh
+Mina Sadiyat => Mina Sadiyat
+Ibn Sina Medical Centre => Ibn Sina Medical Centre
+Al Garhoud => Al Garhoud
+-Al Garhoud => -Al Garhoud
+Corniche West Street, P.O.Box 39999 => Corniche West Street, P.O.Box 39999
+Al Bateen => Al Bateen
+Fatima Bint Mubarak Street (former Najda Street) => Fatima Bint Mubarak Street (former Najda Street)
+Sheikh Zayed The First Street (Khalidiyah Street) => Sheikh Zayed The First Street (Khalidiyah Street)
+Mohammed Bin Khalifa Street (15th Street) => Mohammed Bin Khalifa Street (15th Street)
+Hattan Street 2 => Hattan Street 2
+Al Nahda 2 => Al Nahda 2
+Street 2 => Street 2
+Dubai Investment Park 2 => Dubai Investment Park 2
+Al Barsha south 2 => Al Barsha south 2
+dubai investment park 2 => dubai investment park 2
+Dragon Mart 2 => Dragon Mart 2
+Al Jaddaf 2 => Al Jaddaf 2
+Icad 2 => Icad 2
+P.O. Box 282825 => P.O. Box 282825
+Al Ramth => Al Ramth
+P.O. Box 34429 => P.O. Box 34429
+Karama => Karama
+Abraj al Mamzar Emirates building => Abraj al Mamzar Emirates building
+Mina Al Arab => Mina Al Arab
+al rawada => al rawada
+High Bay Business Center => High Bay Business Center
+Al Mina Road, Port Rashid => Al Mina Road, Port Rashid
+Muhaila , Al Teqa children club => Muhaila , Al Teqa children club
+6 => 6
+12 D St => 12 D Street
+Al Zahra St => Al Zahra Street
+Al Hubob St => Al Hubob Street
+6b St => 6b Street
+3 A St => 3 A Street
+34d St => 34d Street
+Electra St => Electra Street
+1b St => 1b Street
+Rigga Al Buteen St => Rigga Al Buteen Street
+16 D St => 16 D Street
+Meena St => Meena Street
+81 A St => 81 A Street
+Corniche Street Al Jubail ,Sharjah => Corniche Street Al Jubail ,Sharjah
+Jawazath Road, Behind Mashreq Bank, Sharjah => Jawazath Road, Behind Mashreq Bank, Sharjah
+Al Nud Sharjah => Al Nud Sharjah
+166 => 166
+Street 92 => Street 92
+Road: WB3 => Road: WB3
+shabiya -11 => shabiya -11
+ind area 10 => ind area 10
+Street 10 => Street 10
+industrial 13 => industrial 13
+street 13
+=> street 13
+Street 13 => Street 13
+11 b => 11 b
+sweet 15 => sweet 15
+11th street, Musaffah M 14 => 11th street, Musaffah M 14
+Musaffah Industrial Area Street 14 => Musaffah Industrial Area Street 14
+17 => 17
+19 => 19
+street 18 => street 18
+Street 18 => Street 18
+CBD06 => CBD06
+Jumeirah Walk => Jumeirah Walk
+morocco => morocco
+Street 724 => Street 724
+Hatta Oman road Muzera => Hatta Oman road Muzera
+Al Saada => Al Saada
+Near Ramla Hyper Market => Near Ramla Hyper Market
+Souk, Central Market => Souk, Central Market
+Motor City => Motor City
+Dubai Healthcare City => Dubai Healthcare City
+Mohammed Bin Zayed City => Mohammed Bin Zayed City
+Zayed Sports City => Zayed Sports City
+Up Town Motor City => Up Town Motor City
+Academic City => Academic City
+Community 153 => Community 153
+Gate Precinct 5 Suite 606 => Gate Precinct 5 Suite 606
+Boutik Mall, 1st Floor => Boutik Mall, 1st Floor
+Tameem House Building Floor => Tameem House Building Floor
+Abdul Salam Arif => Abdul Salam Arif
+Sa'ada Street (19th) => Sa'ada Street (19th)
+England cluster => England cluster
+Khorfakkan => Khorfakkan
+Al Rifa Street, Khorfakkan => Al Rifa Street, Khorfakkan
+District 12 C12 => District 12 C12
+China C15 => China C15
+Khalidiya => Khalidiya
+Al Mankhool => Al Mankhool
+Southern Sun Abu Dhabi => Southern Sun Abu Dhabi
+Sheraton Abu Dhabi => Sheraton Abu Dhabi
+47 => 47
+Street 43 => Street 43
+City Walk, Jumeirah 1 => City Walk, Jumeirah 1
+Hattan Street 1 => Hattan Street 1
+20B Street, Safa 1 => 20B Street, Safa 1
+aljurf ind 1 => aljurf ind 1
+E 1 => E 1
+Dubai Silicon Oasis => Dubai Silicon Oasis
+M-24 => M-24
+Musaffah => Musaffah
+6th Street Tanker Mai => 6th Street Tanker Mai
+Al Qasr => Al Qasr
+skycourts => skycourts
+147 => 147
+Bahar 7 Jumeirah Beach Res, Marsa, Dubai, AE => Bahar 7 Jumeirah Beach Res, Marsa, Dubai, AE
+Nahda park jogging track => Nahda park jogging track
+The Walk, Jumeirah Beach Residence => The Walk, Jumeirah Beach Residence
+Ewan Residence => Ewan Residence
+Khatam al shikla => Khatam al shikla
+Crescent Rd, The Palm Jumeirah => Crescent Rd, The Palm Jumeirah
+Crescent Road, Atlantis Palm Jumeirah => Crescent Road, Atlantis Palm Jumeirah
+Rose 2 - 17a St - Dubai 17a St Dubai United Arab Emirates => Rose 2 - 17a St - Dubai 17a St Dubai United Arab Emirates
+P.O. Box 50 => P.O. Box 50
+Kahraba South East => Kahraba South East
+Corniche Road East => Corniche Road East
+Swiss Tower, Cluster Y => Swiss Tower, Cluster Y
+2-A => 2-A
+Persia N => Persia N
+Bijada Boulevard South => Bijada Boulevard South
+29 a => 29 a
+Rawdha Bridge => Rawdha Bridge
+near health care center => near health care center
+Al Barsha => Al Barsha
+Corniche West Street, P.O. Box: 4010 => Corniche West Street, P.O. Box: 4010
+Emirates Living Community => Emirates Living Community
+Al Safouh st => Al Safouh Street
+13c st => 13c Street
+27b st => 27b Street
+Sheikh Zayed Road (E-11) => Sheikh Zayed Road (E-11)
+al barsha south => al barsha south
+Al Badia Hillside Village => Al Badia Hillside Village
+Cedre Village => Cedre Village
+Warrior Net Cafeteria => Warrior Net Cafeteria
+17th St. Old Airport Rd. Sea Shell buil. => 17th St. Old Airport Rd. Sea Shell buil.
+
+More accurate correction is possible by comparison with data from other map sites and in the studying of the real situation.
+
+3. JSON & Mongo DB
+
+3.1 Database
+
+Using a set of commands the database was created in Mongo DB on the basis of the file dubai_abu-dhabi.osm.json.
+
+Dropping collection: /Users/olgabelitskaya/large-repo/dubai_abu-dhabi
+Executing: mongoimport -h 127.0.0.1:27017 --db openstreetmap_dubai --collection /Users/olgabelitskaya/large-repo/dubai_abu-dhabi --file /Users/olgabelitskaya/large-repo/dubai_abu-dhabi.osm.json
+
+3.2 Indicators of the dataset
+
+Documents:  2124505
+Nodes:  1890130
+Ways:  234063
+
+Let's have a look on one example of the document in this database. It represents the structure of the data in our case.
+{u'pos': [25.148038, 55.3862105], u'_id': ObjectId('581282954d13337626b8da7c'), u'type': u'node', u'id': u'21133779', 
+u'created': {u'changeset': u'7291467', u'version': u'2', u'user': u'Tommy', u'timestamp': u'2011-02-15T02:24:42Z', u'uid': u'18885'}}
+
+3.3 Users
+
+Number of users:  1885.
+
+List of the first 50 user names:
+[u'-KINGSMAN-', u'0508799996', u'08xavstj', u'12DonW', u'12Katniss', u'13 digits', u'25837', u'3abdalla', u'4b696d', u'4rch', u'66444098', 
+u'7dhd', u'@kevin_bullock', u'AAANNNDDD', u'AC FootCap', u'AE35', u'AHMED ABASHAR', u'AKazariani', u'ASHRAF CHOOLAKKADAVIL', u'A_Sadath', 
+u'AakankshaR', u'Aal Ibra240380heem', u'Abbadi', u'Abdalmajeed Najmi', u'Abdelhadi Azaizeh', u'Abdul Noor Bank', u'Abdul Rahim Khan', 
+u'Abdul wahab rashid', u'Abdulaziz AlSweda', u'Abdulla Shuqair', u'Abdullah Al Hany', u'Abdullah Alshareef', u'Abdullah Rana', u'Abdullah777',
+u'Abdurehman', u'AbeMazid', u'Abhin', u'Abiodun Babalola', u'Aboad Jasim', u'Abood Ad', u'Abrarbhai', u'Absamc', u'AbuFazal', u'Abud', 
+u'Adel alsaad', u'Adib Yz', u'Adil Alsuleimani', u'Adley', u'Adm Vtc', u'Adnaan Abrahams']
+
+The database allows to evaluate the contribution of each individual user in map editing.
+
+Number of notes for the user Ahmed Silo:  7.
+
+The notes of the user Ahmed Silo: 
+{u'amenity': u'hospital', u'name': u'Lifeline Hospital', u'emergency': u'yes', u'created': {u'changeset': u'15753505', u'version': u'2', 
+u'user': u'Ahmed Silo', u'timestamp': u'2013-04-16T18:40:04Z', u'uid': u'1363849'}, u'pos': [25.0292611, 55.1147026], 
+u'_id': ObjectId('58339b2778c5c4115e93545f'), u'type': u'node', u'id': u'626423070'}
+{u'amenity': u'school', u'name': u'Jebel Ali Primary School', u'created': {u'changeset': u'15753505', u'version': u'2', u'user': 
+u'Ahmed Silo', u'timestamp': u'2013-04-16T18:46:35Z', u'uid': u'1363849'}, u'pos': [25.0297763, 55.1139623], 
+u'_id': ObjectId('58339b2778c5c4115e935461'), u'type': u'node', u'id': u'626429819'}
+{u'amenity': u'kindergarten', u'name': u'Chubby cheeks Nursary', u'created': {u'changeset': u'15753505', u'version': u'1', u'user': 
+u'Ahmed Silo', u'timestamp': u'2013-04-16T18:34:52Z', u'uid': u'1363849'}, u'pos': [25.0470894, 55.1296555], u'address': {}, 
+u'_id': ObjectId('58339c7e78c5c4115e9facc2'), u'type': u'node', u'id': u'2269838356'}
+{u'name': u'almontazah', u'created': {u'changeset': u'15753505', u'version': u'1', u'user': u'Ahmed Silo', u'timestamp': 
+u'2013-04-16T18:42:42Z', u'uid': u'1363849'}, u'pos': [25.0299715, 55.1149033], u'address': {}, u'_id': ObjectId('58339c7e78c5c4115e9fad26'), 
+u'type': u'node', u'id': u'2269842732', u'highway': u'bus_stop'}
+{u'amenity': u'school', u'name': u'Dubai driving center', u'created': {u'changeset': u'15911983', u'version': u'1', u'user': 
+u'Ahmed Silo', u'timestamp': u'2013-04-29T18:28:50Z', u'uid': u'1363849'}, u'pos': [25.0496051, 55.1295311], 
+u'_id': ObjectId('58339c8478c5c4115e9fc7e0'), u'type': u'node', u'id': u'2285961501'}
+{u'created': {u'changeset': u'15911983', u'version': u'1', u'user': u'Ahmed Silo', u'timestamp': u'2013-04-29T18:33:47Z', 
+u'uid': u'1363849'}, u'man_made': u'tower', u'pos': [25.0342325, 55.1101602], u'_id': ObjectId('58339c8478c5c4115e9fc7e1'), 
+u'type': u'node', u'id': u'2285965838'}
+{u'created': {u'changeset': u'15911983', u'version': u'1', u'user': u'Ahmed Silo', u'timestamp': u'2013-04-29T18:40:01Z', 
+u'uid': u'1363849'}, u'pos': [25.0292942, 55.116694], u'_id': ObjectId('58339c8478c5c4115e9fc7e2'), u'type': u'node', 
+u'id': u'2285973491', u'highway': u'bus_stop'}.
+
+With the help of simple manipulations in the database, the user can perform a selection of interesting information.
+
+Let us list three most active editors of this map section:
+
+{u'_id': u'eXmajor', u'count': 492808}, {u'_id': u'chachafish', u'count': 156874}, {u'_id': u'Seandebasti', u'count': 125767}.
+
+The number of users with one note:
+
+{u'_id': 1, u'num_users': 646}.
+
+The list of ten users with only one note:
+
+{u'count': 1, u'_id': u'ganesh reddy'}, {u'count': 1, u'_id': u'Msmsms99'}, {u'count': 1, u'_id': u'Rjensky'}, 
+{u'count': 1, u'_id': u'thajudeen n'}, {u'count': 1, u'_id': u'aceman444'}, {u'count': 1, u'_id': u'Haseeb1973'}, 
+{u'count': 1, u'_id': u'I\u0148n\xf4\xc7\xeb\u0148t R\xe4h\xfal P\xe4l'}, {u'count': 1, u'_id': u'Khadar Mohaideen'}, 
+{u'count': 1, u'_id': u'Niyas Badarudeen'}, {u'count': 1, u'_id': u'Emma Danny'}.
+
+3.4 Places
+
+Three most common places:
+
+{u'_id': u'Yas Mall', u'count': 14}, {u'_id': u'Jumeirah Village Triangle', u'count': 10}, 
+{u'_id': u'Deerfields Townsquare Shopping Centre', u'count': 2}.
+
+The list of 10 most common types of buildings:
+ {u'_id': u'yes', u'count': 43834},
+ {u'_id': u'house', u'count': 4216},
+ {u'_id': u'apartments', u'count': 2910},
+ {u'_id': u'residential', u'count': 2606},
+ {u'_id': u'roof', u'count': 1026},
+ {u'_id': u'hangar', u'count': 825},
+ {u'_id': u'warehouse', u'count': 380},
+ {u'_id': u'mosque', u'count': 378},
+ {u'_id': u'garage', u'count': 314},
+ {u'_id': u'commercial', u'count': 313}
+
+The list of 10 most common facilities:
+ {u'_id': u'parking', u'count': 5602},
+ {u'_id': u'place_of_worship', u'count': 1443},
+ {u'_id': u'restaurant', u'count': 1372},
+ {u'_id': u'school', u'count': 489},
+ {u'_id': u'fast_food', u'count': 442},
+ {u'_id': u'fuel', u'count': 438},
+ {u'_id': u'cafe', u'count': 403},
+ {u'_id': u'bank', u'count': 317},
+ {u'_id': u'pharmacy', u'count': 311},
+ {u'_id': u'shelter', u'count': 247}.
+ 
+The list of 3 most common zipcodes:
+
+{u'_id': u'811', u'count': 5}, {u'_id': u'473828', u'count': 4}, {u'_id': u'24857', u'count': 3}.
+
+Counting zipcodes with one document:
+
+{u'_id': 1, u'count': 85}.
+
+
+3.5 Update values in Mongo DB
+At the preliminary stage of familiarization with the information in the osm file problem and erroneous points in the dataset were found. Now we can replace the wrong values and decide many important tasks at the same time:
+check the data about concrete geoobjects,
+use additional information in fields,
+update values.
+
+3.5.1 One value
+The example of the document with the wrong value:
+{u'_id': ObjectId('58339f5578c5c4115eb124ff'),
+ u'address': {u'city': u'Al Ain', u'street': u'Twam St.'},
+ u'building': u'residential',
+ u'created': {u'changeset': u'22394079',
+  u'timestamp': u'2014-05-17T18:34:16Z',
+  u'uid': u'2079950',
+  u'user': u'Anna23',
+  u'version': u'1'},
+ u'id': u'282551277',
+ u'name': u"Maqam 2 Female Students' Accomodation",
+ u'node_refs': [u'2864941597',
+  u'2864941598',
+  u'2864941599',
+  u'2864941600',
+  u'2864942001',
+  u'2864941597'],
+ u'type': u'way'}
+ 
+The process of replacing:
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339c6b78c5c4115e9f47e9')}, {'$set': {'address.street': 'Al Sufouh Road'}}, upsert=False)
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339ba178c5c4115e97e58d')}, 
+                           {'$set': {'address.street': 'Sheikh Rashed Bin Said Road'}}, 
+                           upsert=False)
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339dab78c5c4115ea6fc12')}, {'$set': {'address.street': 'Oud Metha Road'}}, upsert=False)
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339c6b78c5c4115e9f47e4')}, {'$set': {'address.street': 'Jumeirah Beach Road'}}, upsert=False)
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339c6b78c5c4115e9f47e5')}, {'$set': {'address.street': 'Oud Metha Road'}}, upsert=False)
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339f7878c5c4115eb287b1')}, {'$set': {'address.street': 'Al Falak Street'}}, upsert=False)
+dubai_abu_dhabi.update_one({'_id': ObjectId('58339f5578c5c4115eb124ff')}, {'$set': {'address.street': 'Twam Street'}}, upsert=False)
+
+The example of checking the result:
+{u'_id': ObjectId('58339f5578c5c4115eb124ff'),
+ u'address': {u'city': u'Al Ain', u'street': u'Twam Street'},
+ u'building': u'residential',
+ u'created': {u'changeset': u'22394079',
+  u'timestamp': u'2014-05-17T18:34:16Z',
+  u'uid': u'2079950',
+  u'user': u'Anna23',
+  u'version': u'1'},
+ u'id': u'282551277',
+ u'name': u"Maqam 2 Female Students' Accomodation",
+ u'node_refs': [u'2864941597',
+  u'2864941598',
+  u'2864941599',
+  u'2864941600',
+  u'2864942001',
+  u'2864941597'],
+ u'type': u'way'}
+
+3.5.2 The same manipulations we do with several mistakes and fields. The reader can see it in the full version of the project.
+
+4. Problems and errors
+
+4.1
+One of the main problems of public maps - no duplication of all place names in other languages. If it were possible to
+automate the translation process by increasing a common database of map names in many languages, it would save users 
+from many difficulties and mistakes.
+4.2
+The next problem - the presence of a large number of databases (including mapping) on the same map objects. 
+Some intergraph procedures of already available data would relieve a lot of people from unnecessary work, 
+save time and effort.
+4.3
+Obviously, the information about the number of buildings and their purpose is incomplete. Completeness of public maps 
+can be increased by bringing in the process of mapping new users. For this goal enter the information should be 
+as simple as possible: for example, a choice of the available options with automatic filling many fields 
+for linked options (for example, linking the name of the street and the administrative area in which it is located).
+4.4
+There are a number of mistakes and typos as in every public data. For correction them well-known methods 
+can be proposed: automatic comparison with existing data and verification for new data by other users.
+4.5
+The lack of a uniform postal code system in this concrete dataset complicates their identification and verification.
+4.6
+During working on the project, I spent a lot of time on the conversion of one type of data file to another. 
+Each format has its own advantages and disadvantages. Probably, it is possible to design a universal file type that allows us 
+to store data of any kind, combining the advantages of all existing types and applicable in the most of existing programming languages.
+4.7
+Correction of errors made in the data seems to me appropriate to carry out after uploading files to the database. 
+Sometimes a record that is a mistake in terms of filling a particular type of data just contains additional information 
+about geoobjects.
+
+5. Data Overview
+
+5.1 Description of the data structure:
+1) nodes - points in space with basic characteristics (lat, long, id, tags);
+2) ways - defining linear features and area boundaries (an ordered list of nodes);
+3) relations - tags and also an ordered list of nodes, ways and/or relations 
+as members which is used to define logical or geographic relationships between other elements.
+
+5.2 Indicators.
+1) Size of the .osm file: 394,4 MB.
+2) Size of the .osm sample file : 3,9 MB.
+3) Nodes: 1890178.
+4) Ways: 234327.
+5) Relations: 2820.
+6) Tags: 503027.
+7) Users: 1895.
+
+5.3 MongoDB
+With the help of a specific set of commands we can perform a statistical description of the data collections and the database.
+
+DB statistics:
+{u'avgObjSize': 234.44116488311394,
+ u'collections': 1,
+ u'dataSize': 498071427.0,
+ u'db': u'openstreetmap_dubai',
+ u'indexSize': 19124224.0,
+ u'indexes': 1,
+ u'numExtents': 0,
+ u'objects': 2124505,
+ u'ok': 1.0,
+ u'storageSize': 154611712.0}
+
+Collection statistics:
+ {u'avgObjSize': 234,
+ u'capped': False,
+ u'count': 2124505,
+ u'indexDetails': {u'_id_': {u'LSM': {u'bloom filter false positives': 0,
+    u'bloom filter hits': 0,
+    u'bloom filter misses': 0,
+    u'bloom filter pages evicted from cache': 0,
+    u'bloom filter pages read into cache': 0,
+    u'bloom filters in the LSM tree': 0,
+    u'chunks in the LSM tree': 0,
+    u'highest merge generation in the LSM tree': 0,
+    u'queries that could have benefited from a Bloom filter that did not exist': 0,
+    u'sleep for LSM checkpoint throttle': 0,
+    u'sleep for LSM merge throttle': 0,
+    u'total size of bloom filters': 0},
+   u'block-manager': {u'allocations requiring file extension': 1574,
+    u'blocks allocated': 1579,
+    u'blocks freed': 7,
+    u'checkpoint size': 19087360,
+    u'file allocation unit size': 4096,
+    u'file bytes available for reuse': 32768,
+    u'file magic number': 120897,
+    u'file major version number': 1,
+    u'file size in bytes': 19124224,
+    u'minor version number': 0},
+   u'btree': {u'btree checkpoint generation': 494,
+    u'column-store fixed-size leaf pages': 0,
+    u'column-store internal pages': 0,
+    u'column-store variable-size RLE encoded values': 0,
+    u'column-store variable-size deleted values': 0,
+    u'column-store variable-size leaf pages': 0,
+    u'fixed-record size': 0,
+    u'maximum internal page key size': 1228,
+    u'maximum internal page size': 16384,
+    u'maximum leaf page key size': 1228,
+    u'maximum leaf page size': 16384,
+    u'maximum leaf page value size': 6144,
+    u'maximum tree depth': 3,
+    u'number of key/value pairs': 0,
+    u'overflow pages': 0,
+    u'pages rewritten by compaction': 0,
+    u'row-store internal pages': 0,
+    u'row-store leaf pages': 0},
+   u'cache': {u'bytes read into cache': 0,
+    u'bytes written from cache': 19052980,
+    u'checkpoint blocked page eviction': 0,
+    u'data source pages selected for eviction unable to be evicted': 0,
+    u'hazard pointer blocked page eviction': 0,
+    u'in-memory page passed criteria to be split': 72,
+    u'in-memory page splits': 36,
+    u'internal pages evicted': 0,
+    u'internal pages split during eviction': 0,
+    u'leaf pages split during eviction': 0,
+    u'modified pages evicted': 0,
+    u'overflow pages read into cache': 0,
+    u'overflow values cached in memory': 0,
+    u'page split during eviction deepened the tree': 0,
+    u'page written requiring lookaside records': 0,
+    u'pages read into cache': 0,
+    u'pages read into cache requiring lookaside entries': 0,
+    u'pages requested from the cache': 2131441,
+    u'pages written from cache': 1574,
+    u'pages written requiring in-memory restoration': 0,
+    u'unmodified pages evicted': 0},
+   u'compression': {u'compressed pages read': 0,
+    u'compressed pages written': 0,
+    u'page written failed to compress': 0,
+    u'page written was too small to compress': 0,
+    u'raw compression call failed, additional data available': 0,
+    u'raw compression call failed, no additional data available': 0,
+    u'raw compression call succeeded': 0},
+   u'creationString': u'allocation_size=4KB,app_metadata=(formatVersion=8,infoObj={ "v" : 1, "key" : { "_id" : 1 }, "name" : "_id_", "ns" :
+   "openstreetmap_dubai./Users/olgabelitskaya/large-repo/dubai_abudhabi"}), block_allocation=best,block_compressor=,cache_resident=0,
+   checksum=on,colgroups=,collator=,columns=,dictionary=0,encryption=(keyid=,name=),exclusive=0,extractor=,format=btree,huffman_key=,
+ huffman_value=,immutable=0,internal_item_max=0,internal_key_max=0,internal_key_truncate=,internal_page_max=16k,key_format=u,key_gap=10,
+ leaf_item_max=0,leaf_key_max=0,leaf_page_max=16k,leaf_value_max=0,log=(enabled=),lsm=(auto_throttle=,bloom=,bloom_bit_count=16,bloom_config=,
+ bloom_hash_count=8,bloom_oldest=0,chunk_count_limit=0,chunk_max=5GB,chunk_size=10MB,merge_max=15,merge_min=0),memory_page_max=5MB,
+ os_cache_dirty_max=0,os_cache_max=0,prefix_compression=true,prefix_compression_min=4,source=,split_deepen_min_child=0,
+ split_deepen_per_child=0,split_pct=75,type=file,value_format=u',
+   u'cursor': {u'bulk-loaded cursor-insert calls': 0,
+    u'create calls': 3,
+    u'cursor-insert key and value bytes inserted': 37977924,
+    u'cursor-remove key bytes removed': 0,
+    u'cursor-update value bytes updated': 0,
+    u'insert calls': 2124505,
+    u'next calls': 0,
+    u'prev calls': 0,
+    u'remove calls': 0,
+    u'reset calls': 2124505,
+    u'restarted searches': 0,
+    u'search calls': 0,
+    u'search near calls': 0,
+    u'truncate calls': 0,
+    u'update calls': 0},
+   u'metadata': {u'formatVersion': 8,
+    u'infoObj': u'{ "v" : 1, "key" : { "_id" : 1 }, "name" : "_id_", 
+    "ns" : "openstreetmap_dubai./Users/olgabelitskaya/large-repo/dubai_abu-dhabi" }'},
+   u'reconciliation': {u'dictionary matches': 0,
+    u'fast-path pages deleted': 0,
+    u'internal page key bytes discarded using suffix compression': 3090,
+    u'internal page multi-block writes': 3,
+    u'internal-page overflow keys': 0,
+    u'leaf page key bytes discarded using prefix compression': 25812381,
+    u'leaf page multi-block writes': 38,
+    u'leaf-page overflow keys': 0,
+    u'maximum blocks required for a page': 43,
+    u'overflow values written': 0,
+    u'page checksum matches': 19,
+    u'page reconciliation calls': 45,
+    u'page reconciliation calls for eviction': 0,
+    u'pages deleted': 0},
+   u'session': {u'object compaction': 0, u'open cursor count': 3},
+   u'transaction': {u'update conflicts': 0},
+   u'type': u'file',
+   u'uri': u'statistics:table:index-1--6562267310094709655'}},
+ u'indexSizes': {u'_id_': 19124224},
+ u'nindexes': 1,
+ u'ns': u'openstreetmap_dubai./Users/olgabelitskaya/large-repo/dubai_abu-dhabi',
+ u'ok': 1.0,
+ u'size': 498071427,
+ u'storageSize': 154611712,
+ u'totalIndexSize': 19124224,
+ u'wiredTiger': {u'LSM': {u'bloom filter false positives': 0,
+   u'bloom filter hits': 0,
+   u'bloom filter misses': 0,
+   u'bloom filter pages evicted from cache': 0,
+   u'bloom filter pages read into cache': 0,
+   u'bloom filters in the LSM tree': 0,
+   u'chunks in the LSM tree': 0,
+   u'highest merge generation in the LSM tree': 0,
+   u'queries that could have benefited from a Bloom filter that did not exist': 0,
+   u'sleep for LSM checkpoint throttle': 0,
+   u'sleep for LSM merge throttle': 0,
+   u'total size of bloom filters': 0},
+  u'block-manager': {u'allocations requiring file extension': 18223,
+   u'blocks allocated': 18229,
+   u'blocks freed': 10,
+   u'checkpoint size': 154566656,
+   u'file allocation unit size': 4096,
+   u'file bytes available for reuse': 40960,
+   u'file magic number': 120897,
+   u'file major version number': 1,
+   u'file size in bytes': 154611712,
+   u'minor version number': 0},
+  u'btree': {u'btree checkpoint generation': 494,
+   u'column-store fixed-size leaf pages': 0,
+   u'column-store internal pages': 0,
+   u'column-store variable-size RLE encoded values': 0,
+   u'column-store variable-size deleted values': 0,
+   u'column-store variable-size leaf pages': 0,
+   u'fixed-record size': 0,
+   u'maximum internal page key size': 368,
+   u'maximum internal page size': 4096,
+   u'maximum leaf page key size': 2867,
+   u'maximum leaf page size': 32768,
+   u'maximum leaf page value size': 67108864,
+   u'maximum tree depth': 3,
+   u'number of key/value pairs': 0,
+   u'overflow pages': 0,
+   u'pages rewritten by compaction': 0,
+   u'row-store internal pages': 0,
+   u'row-store leaf pages': 0},
+  u'cache': {u'bytes read into cache': 7310088,
+   u'bytes written from cache': 516160231,
+   u'checkpoint blocked page eviction': 0,
+   u'data source pages selected for eviction unable to be evicted': 0,
+   u'hazard pointer blocked page eviction': 0,
+   u'in-memory page passed criteria to be split': 154,
+   u'in-memory page splits': 77,
+   u'internal pages evicted': 0,
+   u'internal pages split during eviction': 0,
+   u'leaf pages split during eviction': 1,
+   u'modified pages evicted': 1,
+   u'overflow pages read into cache': 0,
+   u'overflow values cached in memory': 0,
+   u'page split during eviction deepened the tree': 0,
+   u'page written requiring lookaside records': 0,
+   u'pages read into cache': 258,
+   u'pages read into cache requiring lookaside entries': 0,
+   u'pages requested from the cache': 2376652,
+   u'pages written from cache': 18224,
+   u'pages written requiring in-memory restoration': 0,
+   u'unmodified pages evicted': 0},
+  u'compression': {u'compressed pages read': 258,
+   u'compressed pages written': 18124,
+   u'page written failed to compress': 0,
+   u'page written was too small to compress': 100,
+   u'raw compression call failed, additional data available': 0,
+   u'raw compression call failed, no additional data available': 0,
+   u'raw compression call succeeded': 0},
+  u'creationString': u'allocation_size=4KB,app_metadata=(formatVersion=1),block_allocation=best,block_compressor=snappy,cache_resident=0,checksum=on,colgroups=,collator=,columns=,dictionary=0,
+  encryption=(keyid=,name=),exclusive=0,extractor=,format=btree,huffman_key=,huffman_value=,immutable=0,internal_item_max=0,internal_key_max=0,
+  internal_key_truncate=,internal_page_max=4KB,key_format=q,key_gap=10,leaf_item_max=0,leaf_key_max=0,leaf_page_max=32KB,leaf_value_max=64MB,
+  log=(enabled=),lsm=(auto_throttle=,bloom=,bloom_bit_count=16,bloom_config=,bloom_hash_count=8,bloom_oldest=0,chunk_count_limit=0,
+  chunk_max=5GB,chunk_size=10MB,merge_max=15,merge_min=0),memory_page_max=10m,os_cache_dirty_max=0,os_cache_max=0,
+  prefix_compression=0,prefix_compression_min=4,source=,split_deepen_min_child=0,split_deepen_per_child=0,split_pct=90,
+  type=file,value_format=u',
+  u'cursor': {u'bulk-loaded cursor-insert calls': 0,
+   u'create calls': 3,
+   u'cursor-insert key and value bytes inserted': 506487082,
+   u'cursor-remove key bytes removed': 0,
+   u'cursor-update value bytes updated': 0,
+   u'insert calls': 2124505,
+   u'next calls': 29743085,
+   u'prev calls': 1,
+   u'remove calls': 0,
+   u'reset calls': 267324,
+   u'restarted searches': 0,
+   u'search calls': 0,
+   u'search near calls': 233314,
+   u'truncate calls': 0,
+   u'update calls': 0},
+  u'metadata': {u'formatVersion': 1},
+  u'reconciliation': {u'dictionary matches': 0,
+   u'fast-path pages deleted': 0,
+   u'internal page key bytes discarded using suffix compression': 18297,
+   u'internal page multi-block writes': 3,
+   u'internal-page overflow keys': 0,
+   u'leaf page key bytes discarded using prefix compression': 0,
+   u'leaf page multi-block writes': 80,
+   u'leaf-page overflow keys': 0,
+   u'maximum blocks required for a page': 262,
+   u'overflow values written': 0,
+   u'page checksum matches': 284,
+   u'page reconciliation calls': 87,
+   u'page reconciliation calls for eviction': 1,
+   u'pages deleted': 1},
+  u'session': {u'object compaction': 0, u'open cursor count': 3},
+  u'transaction': {u'update conflicts': 0},
+  u'type': u'file',
+  u'uri': u'statistics:table:collection-0--6562267310094709655'}}
+
+6. Conclusion
+
+I think this project is educational for me. I believe that one of the main tasks in this case was to study 
+the methods of extraction and researching of map data in open access. For example, I used a systematic sample 
+of elements from the original .osm file for trying functions of processing before applying them to the whole dataset. 
+As a result I have some new useful skills in parsing, processing, storing, aggregating and applying the data.
+
+In the research I have read through quite a lot of projects of other students on this topic. After my own research 
+and review the results of other authors I have formed a definite opinion about the ideas in OpenStreetMap.
+
+This website can be viewed as a testing ground of interaction of a large number of people (ncluding non-professionals) 
+to create a unified information space. The prospects of such cooperation can not be overemphasized. The success 
+of the project will allow to implement the ambitious plans in the field of available information technologies, 
+the creation of virtual reality and many other areas.
+
+Increasing of the number of users leads to many positive effects in this kind of projects:
+1) a rapid improvement in the accuracy, completeness and timeliness of information;
+2) approximation of the information space to the reality , the objectivity of the data evaluation;
+3) reduce the effort for data cleansing on erroneous details.
+
+Ideas for improving the project OpenStreetMap are simple and natural.
+Increasing the number of users can be achieved by additional options like marks of the rating evaluation 
+(eg, the best restaurant or the most convenient parking).
+The popularity of the project may be more due to the temporary pop-up messages of users 
+(placement is not more than 1-3 hours) with actual information about the geographic location 
+(eg, the presence of traffic jams).
