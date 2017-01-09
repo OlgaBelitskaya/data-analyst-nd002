@@ -31,7 +31,7 @@ were built for these goals too.
 
 1.1. The map
 
-I have chosed the map sector of the dynamically developing area in the UAE.
+I have chosen the map sector of the dynamically developing area in the UAE.
 For displaying the area I have used the package "folium" and the coordinates of this area in dubai_abu-dhabi.osm.
 
 Bounds: minlat="23.7350" minlon="53.5800" maxlat="26.5390" maxlon="56.8870".
