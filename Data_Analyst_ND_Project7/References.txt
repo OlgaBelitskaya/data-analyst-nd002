@@ -1,0 +1,17 @@
+References
+1. The final project:
+ https://classroom.udacity.com/courses/ud257/lessons/4126079196/concepts/42072285530923
+2. The project instructions:
+https://docs.google.com/document/u/1/d/1aCquhIqsUApgsxQ8-SQBAigFDcfWVVohLEXcV6jWbdI/pub?embedded=True
+3. The template format:
+https://docs.google.com/document/d/16OX2KDSHI9mSCriyGIATpRGscIW2JmByMd0ITqKYvNg/edit
+4. The final project results:
+https://docs.google.com/spreadsheets/d/1Mu5u9GrybDdska-ljPXyBjTpdZIUev_6i7t4LRDfXM8/edit#gid=0
+5. The online calculator "Sample size":
+http://www.evanmiller.org/ab-testing/sample-size.html
+6. The online calculator "Sign and binomial test": 
+http://graphpad.com/quickcalcs/binomial1.cfm
+7. Binomial distribution visualisation: 
+http://databits.io/bits/fbmx-binomial-distribution
+8. Simple interactive statistical analysis: 
+http://www.quantitativeskills.com/sisa/calculations/bonhlp.htm
