@@ -1,5 +1,5 @@
 #  &#x1F4CB; &nbsp; Data Analyst ND002 
-[Built with Udacity](https://udacity.com) [Data Analyst Certificate](https://olgabelitskaya.github.io/certificate.pdf) [![Click](https://olgabelitskaya.github.io/badge_awesome.svg)](https://olgabelitskaya.github.io/README.html)
+[Built with Udacity](https://udacity.com) [![Click](https://olgabelitskaya.github.io/badge_awesome.svg)](https://olgabelitskaya.github.io/README.html) [Data Analyst Certificate](https://olgabelitskaya.github.io/certificate.pdf) 
 
 #### P0: Chopsticks! 
 * https://olgabelitskaya.github.io/Data_Analyst_ND_Project0.html
